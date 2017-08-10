@@ -8,6 +8,8 @@ const util = require('util')
 var winston = require('winston');
 var config = require('config');
 var yaml = require('js-yaml');
+var later = require('later');
+
 
 
 // Set up Winston logger, logging both to console and different disk files
@@ -72,15 +74,20 @@ const configEnigma = {
 
 
 
+var schedules = [];
+
 // Load app config doc, or throw exception on error
 try {
   var appConfigDoc = yaml.safeLoad(fs.readFileSync('./config/apps.yaml', 'utf8'));
   console.log(appConfigDoc);
 
   appConfigDoc.apps.forEach(function(appConfig) {
-      console.log(appConfig);
-      console.log(appConfig.id);
-      console.log(appConfig.freq);
+    var sched = later.parse.text(appConfig.freq);
+    var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
+
+    console.log('');
+    console.log(appConfig.id);
+    console.log(appConfig.freq);
   }, this);
 
 } catch (e) {
@@ -89,9 +96,35 @@ try {
 
 
 
-// Schedule loading of each app according to config file
+function loadAppIntoCache(appConfig) {
+    logger.log('verbose', 'Starting loading of appid ' + appConfig.appId);
+
+    // Load the app specified by appId
+    var configEnigma2 = configEnigma;
+    configEnigma2.session.host = appConfig.server;
+
+    enigma.getService('qix', configEnigma2).then((qix) => {
+        const g = qix.global;
+
+        // Connect to engine
+        logger.log('debug', 'Connecting to QIX engine on ' + appConfig.server);
 
 
+        g.openApp(appConfig.appId).then((app) => {
+            logger.log('info', 'App loaded: ' + appConfig.appId);
+        })
+        .catch(err => {
+            // Return error msg
+            logger.log('error', 'Error 1: ' + err);
+            return;
+        })
+    })
+    .catch(err => {
+        // Return error msg
+        logger.log('error', 'Error 2 (failed opening Sense app): ' + err);
+        return;
+    });
 
 
+}
 

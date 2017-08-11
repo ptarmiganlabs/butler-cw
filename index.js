@@ -80,14 +80,16 @@ var schedules = [];
 try {
   var appConfigDoc = yaml.safeLoad(fs.readFileSync('./config/apps.yaml', 'utf8'));
   console.log(appConfigDoc);
+  console.log('');
 
   appConfigDoc.apps.forEach(function(appConfig) {
     var sched = later.parse.text(appConfig.freq);
     var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
 
-    console.log('');
-    console.log(appConfig.id);
-    console.log(appConfig.freq);
+    // Do an initial caching run for current app
+    var sched2 = later.parse.recur().every(5).second();
+    var t2 = later.setTimeout(function () {loadAppIntoCache(appConfig)}, sched2);
+
   }, this);
 
 } catch (e) {
@@ -112,6 +114,84 @@ function loadAppIntoCache(appConfig) {
 
         g.openApp(appConfig.appId).then((app) => {
             logger.log('info', 'App loaded: ' + appConfig.appId);
+
+            // Clear all selections
+            logger.log('debug', appConfig.appId + ': Clear selections');
+            app.clearAll(true);
+
+            // Should we step through all sheets of the app?
+            if(appConfig.appStepThroughSheets) {
+
+                logger.log('debug', appConfig.appId + ': Get list of all sheets');
+                
+                
+                app.createSessionObject({ qInfo: { qType: 'sheetlist' }, qAppObjectListDef: { qType: 'sheet', qData: { 'id': '/cells'} } }).then((listObject) => {
+                    listObject.getLayout().then((layout) => {
+
+                        logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
+                        layout.qAppObjectList.qItems.forEach( function(sheet) {
+                            // console.log('');
+                            // console.log('-----------SHEET-----------');
+                            // console.log(sheet);
+
+                            // Loop over all cells (each chart is a cell on a sheet)
+                            sheet.qData.cells.forEach( function(cell) {
+                                // console.log('');
+                                // console.log('-----------CHART-----------');
+                                // console.log(cell);
+
+
+                                app.getObject(cell.name).then( (chartObject) => {
+                                    // console.log(chartObject);
+
+                                    chartObject.getLayout().then((chartLayout) => {
+                                        
+                                        // console.log('');
+                                        // console.log('-----------CHARTLAYOUT-----------');
+                                        // console.log(chartLayout);
+                                        logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
+
+                                    })
+                                })
+
+
+
+                                // // Get layout of chart to force calculation of it
+                                // cell.getLayout().then((layout) => {
+                                //     console.log('');
+                                //     console.log('-----------LAYOUT-----------');
+                                //     console.log(layout);
+                                // })
+
+                                // app.getObject(sheet.qInfo.qId).then( (obj1) => {
+                                //     console.log(obj1);
+
+                                //     obj1.getProperties().then( (obj2) => {
+                                //         console.log(obj2);
+                                //     })
+                                // })
+
+
+                            })
+
+
+                        });
+                
+
+
+                    // layout.qAppObjectList should contain a list of all sheets
+                        // console.log(layout);
+
+                    });
+                });
+                
+                
+                // getAppLayout().then((layout) => {
+                // })
+
+
+            }
+
         })
         .catch(err => {
             // Return error msg
@@ -127,4 +207,3 @@ function loadAppIntoCache(appConfig) {
 
 
 }
-

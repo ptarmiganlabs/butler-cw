@@ -2,9 +2,6 @@ const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const fs = require('fs');
 const util = require('util')
-// var qrsInteract = require('qrs-interact');
-// var request = require('request');
-// var restify = require('restify');
 var winston = require('winston');
 var config = require('config');
 var yaml = require('js-yaml');
@@ -40,7 +37,6 @@ var logger = new (winston.Logger)({
 
 // Set default log level
 logger.transports.console_log.level = config.get('defaultLogLevel');
-
 logger.log('info', 'Starting Qlik Sense cache warmer.');
 
 
@@ -82,6 +78,7 @@ try {
   console.log(appConfigDoc);
   console.log('');
 
+  // Loop over all apps in app config file
   appConfigDoc.apps.forEach(function(appConfig) {
     var sched = later.parse.text(appConfig.freq);
     var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
@@ -95,7 +92,6 @@ try {
 } catch (e) {
   console.log(e);
 }
-
 
 
 function loadAppIntoCache(appConfig) {
@@ -124,72 +120,44 @@ function loadAppIntoCache(appConfig) {
 
                 logger.log('debug', appConfig.appId + ': Get list of all sheets');
                 
-                
+                // Create session object and use it to retrieve a list of all sheets in the app. 
                 app.createSessionObject({ qInfo: { qType: 'sheetlist' }, qAppObjectListDef: { qType: 'sheet', qData: { 'id': '/cells'} } }).then((listObject) => {
                     listObject.getLayout().then((layout) => {
 
                         logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
                         layout.qAppObjectList.qItems.forEach( function(sheet) {
-                            // console.log('');
-                            // console.log('-----------SHEET-----------');
-                            // console.log(sheet);
 
                             // Loop over all cells (each chart is a cell on a sheet)
                             sheet.qData.cells.forEach( function(cell) {
-                                // console.log('');
-                                // console.log('-----------CHART-----------');
-                                // console.log(cell);
 
-
+                                // Get object reference to chart, based on its name/id
                                 app.getObject(cell.name).then( (chartObject) => {
-                                    // console.log(chartObject);
 
+                                    // Getting a chart's layout force a calculation of the chart
                                     chartObject.getLayout().then((chartLayout) => {
                                         
-                                        // console.log('');
-                                        // console.log('-----------CHARTLAYOUT-----------');
-                                        // console.log(chartLayout);
                                         logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
-
+                                    })
+                                    .catch(err => {
+                                        // Return error msg
+                                        logger.log('error', 'Error 1: ' + err);
+                                        return;
                                     })
                                 })
-
-
-
-                                // // Get layout of chart to force calculation of it
-                                // cell.getLayout().then((layout) => {
-                                //     console.log('');
-                                //     console.log('-----------LAYOUT-----------');
-                                //     console.log(layout);
-                                // })
-
-                                // app.getObject(sheet.qInfo.qId).then( (obj1) => {
-                                //     console.log(obj1);
-
-                                //     obj1.getProperties().then( (obj2) => {
-                                //         console.log(obj2);
-                                //     })
-                                // })
-
-
-                            })
-
-
+                                .catch(err => {
+                                    // Return error msg
+                                    logger.log('error', 'Error 2: ' + err);
+                                    return;
+                                });
+                            });
                         });
-                
-
-
-                    // layout.qAppObjectList should contain a list of all sheets
-                        // console.log(layout);
-
+                    })
+                    .catch(err => {
+                        // Return error msg
+                        logger.log('error', 'Error 3: ' + err);
+                        return;
                     });
                 });
-                
-                
-                // getAppLayout().then((layout) => {
-                // })
-
-
             }
 
         })

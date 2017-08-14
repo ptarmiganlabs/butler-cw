@@ -1,6 +1,5 @@
 // Rename this file to default.json, and fill in data as needed below.
 
-
 {
     // Possible log levels are silly, debug, verbose, info, warn, error
     "defaultLogLevel": "info",
@@ -8,10 +7,6 @@
     // Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
     "clientCertPath": "/path/to/client/cert/client.pem",
     "clientCertKeyPath": "/path/to/client/cert/client_key.pem",
-
-    // Paths to ssl certificate and key used to secure the communication to the duplicate server. Can be pem or pvk/cer
-    "sslCertPath": "/path/to/ssl/cert/client.cer",
-    "sslCertKeyPath": "/path/to/ssl/cert/client_key.pvk",
 
     // Should app specific config be loaded from file on local disk or online URL?
     "AppConfigSource": "disk",

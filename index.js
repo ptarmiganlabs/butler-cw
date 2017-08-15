@@ -6,6 +6,8 @@ var winston = require('winston');
 var config = require('config');
 var yaml = require('js-yaml');
 var later = require('later');
+var GitHubApi = require('github');
+var Promise = require('bluebird');
 
 
 
@@ -40,6 +42,7 @@ logger.transports.console_log.level = config.get('defaultLogLevel');
 logger.log('info', 'Starting Qlik Sense cache warmer.');
 
 
+
 // Read certificates
 const client = fs.readFileSync(config.get('clientCertPath'));
 const client_key = fs.readFileSync(config.get('clientCertKeyPath'));
@@ -50,8 +53,8 @@ const qixSchema = require('enigma.js/schemas/qix/3.2/schema.json');
 const configEnigma = {
     schema: qixSchema,
     session: {
-        host: config.get('host'),
-        port: 4747, // Standard Engine port
+        host: '',           // Will be filled in later
+        port: 4747,         // Standard Engine port
         secure: config.get('isSecure'),
         disableCache: true
     },
@@ -69,28 +72,81 @@ const configEnigma = {
 }
 
 
+// Should per-app config data be read from disk or GitHub?
+var appConfigYaml = '';
 
-var schedules = [];
-
-// Load app config doc, or throw exception on error
 try {
-  var appConfigDoc = yaml.safeLoad(fs.readFileSync('./config/apps.yaml', 'utf8'));
-  console.log(appConfigDoc);
-  console.log('');
+    if (config.get('appConfig.configSource') == 'disk') {
 
-  // Loop over all apps in app config file
-  appConfigDoc.apps.forEach(function(appConfig) {
-    var sched = later.parse.text(appConfig.freq);
-    var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
+        appConfigYaml = fs.readFileSync('./config/apps.yaml', 'utf8');
+        loadAppConfig(appConfigYaml);
 
-    // Do an initial caching run for current app
-    var sched2 = later.parse.recur().every(5).second();
-    var t2 = later.setTimeout(function () {loadAppIntoCache(appConfig)}, sched2);
+    } else if (config.get('appConfig.configSource') == 'github') {
 
-  }, this);
+        var github = new GitHubApi({
+            // optional
+            debug: true,
+            protocol: 'https',
+            host: config.get('appConfig.github.host'),
+            pathPrefix: '/api/v3',
+            headers: {
+                'user-agent': 'Qlik-Sense-cache-warmer'
+            },
+            Promise: Promise,
+            followRedirects: false,
+            timeout: 5000
+        });
 
-} catch (e) {
-  console.log(e);
+        github.authenticate({
+            type: 'basic',
+            username: config.get('appConfig.github.username'),
+            password: config.get('appConfig.github.password')
+        })
+
+        github.repos.getContent({
+            owner: config.get('appConfig.github.owner'),
+            repo: config.get('appConfig.github.repo'),
+            path: config.get('appConfig.github.path')
+        }).then((res) => {
+            console.log('---------------');
+            console.log(res);
+            console.log('---------------');
+            appConfigYaml = Buffer.from(res.data.content, 'base64').toString();
+            console.log(appConfigYaml);
+            console.log('---------------');
+
+            loadAppConfig(appConfigYaml);
+        })
+    }
+} catch(e) {
+    logger.log('error', 'Error while reading app config data: ' + e)
+}
+
+
+
+function loadAppConfig(appConfig) {
+    // Load app config doc, or throw exception on error
+    try {
+
+        var appConfigDoc = yaml.safeLoad(appConfigYaml);
+        console.log(appConfigDoc);
+        console.log('');
+
+
+        // Loop over all apps in app config file
+        appConfigDoc.apps.forEach(function(appConfig) {
+            var sched = later.parse.text(appConfig.freq);
+            var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
+
+            // Do an initial caching run for current app
+            var sched2 = later.parse.recur().every(5).second();
+            var t2 = later.setTimeout(function () {loadAppIntoCache(appConfig)}, sched2);
+        }, this);
+
+    } catch (e) {
+        logger.log('error', 'Error while reading app config data: ' + e)
+    }
+
 }
 
 
@@ -98,10 +154,28 @@ function loadAppIntoCache(appConfig) {
     logger.log('verbose', 'Starting loading of appid ' + appConfig.appId);
 
     // Load the app specified by appId
-    var configEnigma2 = configEnigma;
-    configEnigma2.session.host = appConfig.server;
+    const configEnigma = {
+        schema: qixSchema,
+        session: {
+            host: appConfig.server,           // Will be filled in later
+            port: 4747,         // Standard Engine port
+            secure: config.get('isSecure'),
+            disableCache: true
+        },
+        createSocket: (url, sessionConfig) => {
+            return new WebSocket(url, {
+                // ca: rootCert,
+                key: client_key,
+                cert: client,
+                headers: {
+                    'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
+                },
+                rejectUnauthorized: false
+            });
+        }
+    }
 
-    enigma.getService('qix', configEnigma2).then((qix) => {
+    enigma.getService('qix', configEnigma).then((qix) => {
         const g = qix.global;
 
         // Connect to engine
@@ -163,15 +237,14 @@ function loadAppIntoCache(appConfig) {
         })
         .catch(err => {
             // Return error msg
-            logger.log('error', 'Error 1: ' + err);
+            logger.log('error', 'Error 4: ' + err);
             return;
         })
     })
     .catch(err => {
         // Return error msg
-        logger.log('error', 'Error 2 (failed opening Sense app): ' + err);
+        logger.log('error', 'Error 5: ' + err);
         return;
     });
-
 
 }

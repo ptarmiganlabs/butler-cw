@@ -1,0 +1,24 @@
+# Rename this file to apps.yaml, then edit it as needed.
+
+# This file is used to specifiy what Qlik Sense apps should be loaded by the cache warmer, when/how often they should be loaded, 
+# what filters should be applied when apps are opened etc 
+#
+# Frequency attribute must follow rules described here: https://bunkat.github.io/later/parsers.html
+
+apps:
+  - server: senseserver1.mydomain.com
+    appId: <app id 1>
+    appDescription: Description of app 1
+    appStepThroughSheets: false
+    freq: every 1 hour
+  - server: senseserver.mydomain.com
+    appId: <app id 2>
+    appDescription: Description of app 2
+    appStepThroughSheets: false
+    freq: every 2 hours
+  - server: hsenseserverost2.mydomain.com
+    appId: <app id 3>
+    appDescription: Description of app 3
+    appStepThroughSheets: false
+    freq: every 2 hours
+    

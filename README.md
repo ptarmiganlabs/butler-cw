@@ -1,5 +1,7 @@
 # Butler CW
-A cache warming tool for Qlik Sense. CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them.
+A cache warming tool for Qlik Sense. 
+
+CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them.
 
 ## Background
 In recent versions Qlik Sense Enterprise has moved to something called "[shared persistence](http://help.qlik.com/en-US/sense/3.2/Subsystems/Installation/Content/InstallationLicensing/Install-Shared.htm)". It simply means that the Sense apps are stored on a central file server, rather than on each individual server in the Sense environment.  
@@ -50,17 +52,17 @@ The "appStepThroughSheets" field (in the YAML file) states whether Butler CW sho
 
 Start the service by running "node index.js". Butler CW has been tested on both macOS and Windows Server 2012 R2.
 
-## Keep in mind!
+## Remember!
 You cannot pre-load all apps. Focus on a few of the most used apps, and/or some of the biggest ones, where the impact of cache warming will be the greatest.  
 Also, don't remember to review what apps are being used, and if needed adjust the cach warming strategy. No point in forcing apps that only a few people use into RAM.
 
 
-## References
+## Links & references
 Inspiration to this project largely came from Joe Bickley's [Cache Initializer](https://github.com/JoeBickley/CacheInitializer) project.   
 At the core Joe's tool does the same as Butler CW, but for individual apps.   
 I wanted a stand-alone tool that by itself handles multiple apps on multiple servers. Also, as the rest of the Butler suite is written in Node.js, I wanted the cache warmer to use the same underlying tech as the rest of the Butler family.
 
 Joe's tool does one thing Butler CW does not do: Allow filters to be applied when opening the app. This is a useful feature and might be included in future versions.
 
-
+More info about the Butler family of Qlik Sense utilities can be found at the [Ptarmigan Labs](https://ptarmiganlabs.com/) site, on [Medium](https://medium.com/@mountaindude), over at [Qlik Branch](http://branch.qlik.com/#!/user/56728f52d1e497241ae69a86) or in my [GitHub repositories](https://github.com/mountaindude). 
 

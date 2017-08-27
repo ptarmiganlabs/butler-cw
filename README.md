@@ -1,4 +1,6 @@
-# Butler CW
+![Butler CW](img/butler_cw.png)
+
+
 A cache warming tool for Qlik Sense. 
 
 CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them.

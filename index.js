@@ -41,36 +41,14 @@ var logger = new (winston.Logger)({
 logger.transports.console_log.level = config.get('defaultLogLevel');
 logger.log('info', 'Starting Qlik Sense cache warmer.');
 
+//read QIX schema
+const qixSchema = require('enigma.js/schemas/qix/' + config.get('qixVersion') + '/schema.json');
 
-
-// Read certificates
-const client = fs.readFileSync(config.get('clientCertPath'));
-const client_key = fs.readFileSync(config.get('clientCertKeyPath'));
-
-
-// Set up enigma.js configuration
-const qixSchema = require('enigma.js/schemas/qix/3.2/schema.json');
-const configEnigma = {
-    schema: qixSchema,
-    session: {
-        host: '',           // Will be filled in later
-        port: 4747,         // Standard Engine port
-        secure: config.get('isSecure'),
-        disableCache: true
-    },
-    createSocket: (url, sessionConfig) => {
-        return new WebSocket(url, {
-            // ca: rootCert,
-            key: client_key,
-            cert: client,
-            headers: {
-                'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
-            },
-            rejectUnauthorized: false
-        });
-    }
+if (config.has('clientCertPath')) {
+    // Read certificates
+    const client = fs.readFileSync(config.get('clientCertPath'));
+    const client_key = fs.readFileSync(config.get('clientCertKeyPath'));
 }
-
 
 // Should per-app config data be read from disk or GitHub?
 var appConfigYaml = '';
@@ -157,13 +135,13 @@ function loadAppIntoCache(appConfig) {
     const configEnigma = {
         schema: qixSchema,
         session: {
-            host: appConfig.server,           // Will be filled in later
-            port: 4747,         // Standard Engine port
+            host: appConfig.server,
+            port: config.has('clientCertPath') ? 4747 : 4848,  // Engine /Desktop port
             secure: config.get('isSecure'),
             disableCache: true
         },
         createSocket: (url, sessionConfig) => {
-            return new WebSocket(url, {
+            return new WebSocket(url, config.has('clientCertPath') ? {
                 // ca: rootCert,
                 key: client_key,
                 cert: client,
@@ -171,9 +149,9 @@ function loadAppIntoCache(appConfig) {
                     'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
                 },
                 rejectUnauthorized: false
-            });
+            } : {});
         }
-    }
+    };
 
     enigma.getService('qix', configEnigma).then((qix) => {
         const g = qix.global;
@@ -192,6 +170,7 @@ function loadAppIntoCache(appConfig) {
             // Should we step through all sheets of the app?
             if(appConfig.appStepThroughSheets) {
 
+                var sheetCnt = 0, visCnt = 0;
                 logger.log('debug', appConfig.appId + ': Get list of all sheets');
                 
                 // Create session object and use it to retrieve a list of all sheets in the app. 
@@ -201,9 +180,11 @@ function loadAppIntoCache(appConfig) {
                         logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
                         layout.qAppObjectList.qItems.forEach( function(sheet) {
 
+                            sheetCnt++;
                             // Loop over all cells (each chart is a cell on a sheet)
                             sheet.qData.cells.forEach( function(cell) {
 
+                                visCnt++;
                                 // Get object reference to chart, based on its name/id
                                 app.getObject(cell.name).then( (chartObject) => {
 
@@ -225,6 +206,7 @@ function loadAppIntoCache(appConfig) {
                                 });
                             });
                         });
+                        logger.log('info', 'Cached ' + visCnt + ' visualizations on ' + sheetCnt + ' sheets.');
                     })
                     .catch(err => {
                         // Return error msg

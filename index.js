@@ -43,12 +43,10 @@ logger.log('info', 'Starting Qlik Sense cache warmer.');
 
 //read QIX schema
 const qixSchema = require('enigma.js/schemas/qix/' + config.get('qixVersion') + '/schema.json');
+// Read certificates
+const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')): null;
+const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertKeyPath')): null;
 
-if (config.has('clientCertPath')) {
-    // Read certificates
-    const client = fs.readFileSync(config.get('clientCertPath'));
-    const client_key = fs.readFileSync(config.get('clientCertKeyPath'));
-}
 
 // Should per-app config data be read from disk or GitHub?
 var appConfigYaml = '';
@@ -195,13 +193,13 @@ function loadAppIntoCache(appConfig) {
                                     })
                                     .catch(err => {
                                         // Return error msg
-                                        logger.log('error', 'Error 1: ' + err);
+                                        logger.log('error', 'getLayout error: ' + JSON.stringify(err));
                                         return;
                                     })
                                 })
                                 .catch(err => {
                                     // Return error msg
-                                    logger.log('error', 'Error 2: ' + err);
+                                    logger.log('error', 'getObject error: ' + JSON.stringify(err));
                                     return;
                                 });
                             });
@@ -210,7 +208,7 @@ function loadAppIntoCache(appConfig) {
                     })
                     .catch(err => {
                         // Return error msg
-                        logger.log('error', 'Error 3: ' + err);
+                        logger.log('error', 'sheetlist error: ' + JSON.stringify(err));
                         return;
                     });
                 });
@@ -219,13 +217,13 @@ function loadAppIntoCache(appConfig) {
         })
         .catch(err => {
             // Return error msg
-            logger.log('error', 'Error 4: ' + err);
+            logger.log('error', 'openApp error: ' + JSON.stringify(err));
             return;
         })
     })
     .catch(err => {
         // Return error msg
-        logger.log('error', 'Error 5: ' + err);
+        logger.log('error', 'enigma error: ' + JSON.stringify(err));
         return;
     });
 

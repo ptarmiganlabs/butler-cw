@@ -174,7 +174,7 @@ function loadAppIntoCache(appConfig) {
                 // Create session object and use it to retrieve a list of all sheets in the app. 
                 app.createSessionObject({ qInfo: { qType: 'sheetlist' }, qAppObjectListDef: { qType: 'sheet', qData: { 'id': '/cells'} } }).then((listObject) => {
                     listObject.getLayout().then((layout) => {
-
+                        var promises = [];
                         logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
                         layout.qAppObjectList.qItems.forEach( function(sheet) {
 
@@ -184,10 +184,10 @@ function loadAppIntoCache(appConfig) {
 
                                 visCnt++;
                                 // Get object reference to chart, based on its name/id
-                                app.getObject(cell.name).then( (chartObject) => {
+                                promises.push(app.getObject(cell.name).then( (chartObject) => {
 
                                     // Getting a chart's layout force a calculation of the chart
-                                    chartObject.getLayout().then((chartLayout) => {
+                                    return chartObject.getLayout().then((chartLayout) => {
                                         
                                         logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
                                     })
@@ -201,10 +201,17 @@ function loadAppIntoCache(appConfig) {
                                     // Return error msg
                                     logger.log('error', 'getObject error: ' + JSON.stringify(err));
                                     return;
-                                });
+                                }));
                             });
                         });
-                        logger.log('info', 'Cached ' + visCnt + ' visualizations on ' + sheetCnt + ' sheets.');
+                        Promise.all(promises).then(
+                            function(){
+                                app.session.close();
+                                logger.log('info', 'Cached ' + visCnt + ' visualizations on ' + sheetCnt + ' sheets.');
+                                logger.log('verbose', 'Heap used: '+process.memoryUsage().heapUsed);
+                            }
+                        );
+                        
                     })
                     .catch(err => {
                         // Return error msg
@@ -212,6 +219,8 @@ function loadAppIntoCache(appConfig) {
                         return;
                     });
                 });
+            }else{
+                app.session.close();
             }
 
         })

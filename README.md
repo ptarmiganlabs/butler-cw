@@ -56,7 +56,7 @@ Start the service by running "node index.js". Butler CW has been tested on both 
 
 ## Remember!
 You cannot pre-load all apps. Focus on a few of the most used apps, and/or some of the biggest ones, where the impact of cache warming will be the greatest.  
-Also, don't remember to review what apps are being used, and if needed adjust the cach warming strategy. No point in forcing apps that only a few people use into RAM.
+Also, remember to do an occasional review what apps are being used, and if needed adjust the cach warming strategy. No point in forcing apps that only a few people use into RAM.
 
 
 ## Links & references

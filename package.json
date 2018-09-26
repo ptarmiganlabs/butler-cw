@@ -1,6 +1,6 @@
 {
   "name": "butler-cache-warming",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Cache warming app for Qlik Sense",
   "main": "index.js",
   "directories": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mountaindude/butler-cache-warming.git"
+    "url": "git+https://github.com/ptarmiganlabs/butler-cw"
   },
   "keywords": [
     "qliksense",
@@ -21,9 +21,9 @@
   "author": "Göran Sander",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mountaindude/butler-cache-warming/issues"
+    "url": "https://github.com/ptarmiganlabs/butler-cw/issues"
   },
-  "homepage": "https://github.com/mountaindude/butler-cache-warming#readme",
+  "homepage": "https://github.com/ptarmiganlabs/butler-cw#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
     "config": "^1.26.1",

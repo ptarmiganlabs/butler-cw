@@ -1,7 +1,8 @@
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const fs = require('fs');
-const util = require('util')
+const SenseUtilities = require('enigma.js/sense-utilities');
+const util = require('util');
 var winston = require('winston');
 var config = require('config');
 var yaml = require('js-yaml');
@@ -42,7 +43,7 @@ logger.transports.console_log.level = config.get('defaultLogLevel');
 logger.log('info', 'Starting Qlik Sense cache warmer.');
 
 //read QIX schema
-const qixSchema = require('enigma.js/schemas/qix/' + config.get('qixVersion') + '/schema.json');
+const qixSchema = require('enigma.js/schemas/' + config.get('qixVersion') + '.json');
 // Read certificates
 const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')): null;
 const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertKeyPath')): null;
@@ -130,35 +131,24 @@ function loadAppIntoCache(appConfig) {
     logger.log('verbose', 'Starting loading of appid ' + appConfig.appId);
 
     // Load the app specified by appId
-    const configEnigma = {
-        schema: qixSchema,
-        session: {
-            host: appConfig.server,
-            port: config.has('clientCertPath') ? 4747 : 4848,  // Engine /Desktop port
-            secure: config.get('isSecure'),
-            disableCache: true
-        },
-        createSocket: (url, sessionConfig) => {
-            return new WebSocket(url, config.has('clientCertPath') ? {
-                // ca: rootCert,
-                key: client_key,
-                cert: client,
-                headers: {
-                    'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
-                },
-                rejectUnauthorized: false
-            } : {});
-        }
-    };
+    const urlConfig = {
+         host: appConfig.server,
+         port: config.has('clientCertPath') ? 4747 : 4848,  // Engine /Desktop port
+         appId: appConfig.appId,
+         secure: config.get('isSecure') };
 
-    enigma.getService('qix', configEnigma).then((qix) => {
-        const g = qix.global;
+    const configEnigma = { qixSchema, url: SenseUtilities.buildUrl(urlConfig) };
+    logger.log('verbose', 'DEBUG SenseUtilities: ' + SenseUtilities.buildUrl(urlConfig) );
+
+    enigma.create(configEnigma).open().then((global) => {
+        const g = global;
+        logger.log('verbose', 'DEBUG global: ' + g );
 
         // Connect to engine
         logger.log('debug', 'Connecting to QIX engine on ' + appConfig.server);
 
 
-        g.openApp(appConfig.appId).then((app) => {
+        g.openDoc(appConfig.appId).then((app) => {
             logger.log('info', 'App loaded: ' + appConfig.appId);
 
             // Clear all selections
@@ -170,8 +160,8 @@ function loadAppIntoCache(appConfig) {
 
                 var sheetCnt = 0, visCnt = 0;
                 logger.log('debug', appConfig.appId + ': Get list of all sheets');
-                
-                // Create session object and use it to retrieve a list of all sheets in the app. 
+
+                // Create session object and use it to retrieve a list of all sheets in the app.
                 app.createSessionObject({ qInfo: { qType: 'sheetlist' }, qAppObjectListDef: { qType: 'sheet', qData: { 'id': '/cells'} } }).then((listObject) => {
                     listObject.getLayout().then((layout) => {
                         var promises = [];
@@ -188,7 +178,7 @@ function loadAppIntoCache(appConfig) {
 
                                     // Getting a chart's layout force a calculation of the chart
                                     return chartObject.getLayout().then((chartLayout) => {
-                                        
+
                                         logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
                                     })
                                     .catch(err => {
@@ -211,7 +201,7 @@ function loadAppIntoCache(appConfig) {
                                 logger.log('verbose', 'Heap used: '+process.memoryUsage().heapUsed);
                             }
                         );
-                        
+
                     })
                     .catch(err => {
                         // Return error msg

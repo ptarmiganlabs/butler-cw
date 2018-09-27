@@ -1,52 +1,98 @@
 const enigma = require('enigma.js');
+const SenseUtilities = require('enigma.js/sense-utilities');
 const WebSocket = require('ws');
 const fs = require('fs');
-const SenseUtilities = require('enigma.js/sense-utilities');
 const util = require('util');
-var winston = require('winston');
 var config = require('config');
 var yaml = require('js-yaml');
 var later = require('later');
-var GitHubApi = require('github');
 var Promise = require('bluebird');
-
+var GitHubApi = require('@octokit/rest');
+var winston = require('winston');
 
 
 // Set up Winston logger, logging both to console and different disk files
-var logger = new (winston.Logger)({
+var logger = winston.createLogger({
     transports: [
-        new (winston.transports.Console)({
+        new winston.transports.Console({
             name: 'console_log',
-            'timestamp': true,
-            'colorize': true
+            level: config.get('defaultLogLevel'),
+            format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.colorize(),
+                winston.format.simple(),
+                winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+            )
         }),
-        new (winston.transports.File)({
+        new winston.transports.File({
             name: 'file_info',
             filename: config.get('logDirectory') + '/info.log',
             level: 'info'
         }),
-        new (winston.transports.File)({
+        new winston.transports.File({
             name: 'file_verbose',
             filename: config.get('logDirectory') + '/verbose.log',
             level: 'verbose'
         }),
-        new (winston.transports.File)({
+        new winston.transports.File({
+            name: 'file_debug',
+            filename: config.get('logDirectory') + '/debug.log',
+            level: 'debug'
+        }),
+        new winston.transports.File({
             name: 'file_error',
             filename: config.get('logDirectory') + '/error.log',
             level: 'error'
         })
-    ]
+    ],
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+    )
 });
 
 // Set default log level
-logger.transports.console_log.level = config.get('defaultLogLevel');
 logger.log('info', 'Starting Qlik Sense cache warmer.');
 
-//read QIX schema
-const qixSchema = require('enigma.js/schemas/' + config.get('qixVersion') + '.json');
+// Read QIX schema
+const schema = require(`enigma.js/schemas/${config.get('qixVersion')}.json`);
+
 // Read certificates
-const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')): null;
-const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertKeyPath')): null;
+const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')) : null;
+const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertKeyPath')) : null;
+
+// Formatter for numbers
+const formatter = new Intl.NumberFormat('en-US');
+
+
+// Log uptime to console
+Number.prototype.toTime = function (isSec) {
+    var ms = isSec ? this * 1e3 : this,
+        lm = ~(4 * !!isSec),
+        /* limit fraction */
+        fmt = new Date(ms).toISOString().slice(11, lm);
+
+    if (ms >= 8.64e7) { /* >= 24 hours */
+        var parts = fmt.split(/:(?=\d{2}:)/);
+        parts[0] -= -24 * (ms / 8.64e7 | 0);
+        return parts.join(':');
+    }
+
+    return fmt;
+};
+
+var startTime = Date.now();
+var startIterations = 0;
+
+var uptimeCheck = later.setInterval(function () {
+    startIterations++;
+    let uptime = Date.now() - startTime;
+    logger.log('debug', '--------------------------------');
+    logger.log('debug', 'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + formatter.format(uptime / 1000) + ' seconds');
+    logger.log('debug', 'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + uptime.toTime());
+
+    logger.log('debug', '--------------------------------');
+}, later.parse.text('every 5 seconds'));
 
 
 // Should per-app config data be read from disk or GitHub?
@@ -62,15 +108,18 @@ try {
 
         var github = new GitHubApi({
             // optional
-            debug: true,
-            protocol: 'https',
-            host: config.get('appConfig.github.host'),
-            pathPrefix: '/api/v3',
+            // debug: true,
+            // protocol: 'https',
+            // host: config.get('appConfig.github.host'),
+            // pathPrefix: '/api/v3',
             headers: {
                 'user-agent': 'Qlik-Sense-cache-warmer'
             },
-            Promise: Promise,
-            followRedirects: false,
+            // custom GitHub Enterprise URL
+            baseUrl: 'https://api.github.com',
+
+            // Promise: Promise,
+            // followRedirects: false,
             timeout: 5000
         });
 
@@ -85,17 +134,14 @@ try {
             repo: config.get('appConfig.github.repo'),
             path: config.get('appConfig.github.path')
         }).then((res) => {
-            console.log('---------------');
-            console.log(res);
-            console.log('---------------');
             appConfigYaml = Buffer.from(res.data.content, 'base64').toString();
-            console.log(appConfigYaml);
-            console.log('---------------');
+            logger.log('debug', 'apps config loaded from GitHub: ');
+            logger.log('debug', appConfigYaml);
 
             loadAppConfig(appConfigYaml);
         })
     }
-} catch(e) {
+} catch (e) {
     logger.log('error', 'Error while reading app config data: ' + e)
 }
 
@@ -104,20 +150,21 @@ try {
 function loadAppConfig(appConfig) {
     // Load app config doc, or throw exception on error
     try {
-
         var appConfigDoc = yaml.safeLoad(appConfigYaml);
-        console.log(appConfigDoc);
-        console.log('');
-
+        logger.log('debug', 'Loading app config using following config:\n ' + JSON.stringify(appConfigDoc, null, 2));
 
         // Loop over all apps in app config file
-        appConfigDoc.apps.forEach(function(appConfig) {
+        appConfigDoc.apps.forEach(function (appConfig) {
             var sched = later.parse.text(appConfig.freq);
-            var t = later.setInterval(function() {loadAppIntoCache(appConfig)}, sched);
+            var t = later.setInterval(function () {
+                loadAppIntoCache(appConfig)
+            }, sched);
 
             // Do an initial caching run for current app
             var sched2 = later.parse.recur().every(5).second();
-            var t2 = later.setTimeout(function () {loadAppIntoCache(appConfig)}, sched2);
+            var t2 = later.setTimeout(function () {
+                loadAppIntoCache(appConfig)
+            }, sched2);
         }, this);
 
     } catch (e) {
@@ -127,103 +174,129 @@ function loadAppConfig(appConfig) {
 }
 
 
-function loadAppIntoCache(appConfig) {
+async function loadAppIntoCache(appConfig) {
     logger.log('verbose', 'Starting loading of appid ' + appConfig.appId);
 
     // Load the app specified by appId
     const urlConfig = {
-         host: appConfig.server,
-         port: config.has('clientCertPath') ? 4747 : 4848,  // Engine /Desktop port
-         appId: appConfig.appId,
-         secure: config.get('isSecure') };
+        host: appConfig.server,
+        port: config.has('clientCertPath') ? 4747 : 4848, // Engine /Desktop port
+        appId: appConfig.appId,
+        secure: config.get('isSecure')
+    };
 
-    const configEnigma = { qixSchema, url: SenseUtilities.buildUrl(urlConfig) };
-    logger.log('verbose', 'DEBUG SenseUtilities: ' + SenseUtilities.buildUrl(urlConfig) );
+    const configEnigma = {
+        // qixSchema,
+        schema,
+        url: SenseUtilities.buildUrl(urlConfig),
+        createSocket: url => new WebSocket(url, {
+            // ca: rootCert,
+            key: client_key,
+            cert: client,
+            headers: {
+                'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
+            },
+            rejectUnauthorized: false
+        })
 
-    enigma.create(configEnigma).open().then((global) => {
-        const g = global;
-        logger.log('verbose', 'DEBUG global: ' + g );
+    };
+    logger.log('debug', 'DEBUG SenseUtilities: ' + SenseUtilities.buildUrl(urlConfig));
 
-        // Connect to engine
-        logger.log('debug', 'Connecting to QIX engine on ' + appConfig.server);
+    const s = enigma.create(configEnigma);
 
+    try {
+        global = await s.open();
+    } catch (err) {
+        logger.log('error', 'enigmaOpen error: ' + JSON.stringify(err));
+        return;
+    };
 
-        g.openDoc(appConfig.appId).then((app) => {
-            logger.log('info', 'App loaded: ' + appConfig.appId);
+    const g = global;
+    // logger.log('debug', 'DEBUG global: ' + g);
 
-            // Clear all selections
-            logger.log('debug', appConfig.appId + ': Clear selections');
-            app.clearAll(true);
+    // Open document/app
+    logger.log('debug', 'Connecting to QIX engine on ' + appConfig.server);
 
-            // Should we step through all sheets of the app?
-            if(appConfig.appStepThroughSheets) {
+    let app;
 
-                var sheetCnt = 0, visCnt = 0;
-                logger.log('debug', appConfig.appId + ': Get list of all sheets');
+    try {
+        app = await g.openDoc(appConfig.appId);
+        logger.log('info', 'App loaded: ' + appConfig.appId);
+    } catch (err) {
+        logger.log('error', 'openDoc error: ' + JSON.stringify(err));
+        return;
+    };
 
-                // Create session object and use it to retrieve a list of all sheets in the app.
-                app.createSessionObject({ qInfo: { qType: 'sheetlist' }, qAppObjectListDef: { qType: 'sheet', qData: { 'id': '/cells'} } }).then((listObject) => {
-                    listObject.getLayout().then((layout) => {
-                        var promises = [];
-                        logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
-                        layout.qAppObjectList.qItems.forEach( function(sheet) {
+    // Clear all selections
+    try {
+        let a = await app.clearAll(true);
+        logger.log('debug', appConfig.appId + ': Clear selections');
+    } catch (err) {
+        logger.log('error', 'clearAll error: ' + JSON.stringify(err));
+        return;
+    };
+    // Should we step through all sheets of the app?
+    if (appConfig.appStepThroughSheets) {
 
-                            sheetCnt++;
-                            // Loop over all cells (each chart is a cell on a sheet)
-                            sheet.qData.cells.forEach( function(cell) {
+        var sheetCnt = 0,
+            visCnt = 0;
+        logger.log('debug', appConfig.appId + ': Get list of all sheets');
 
-                                visCnt++;
-                                // Get object reference to chart, based on its name/id
-                                promises.push(app.getObject(cell.name).then( (chartObject) => {
+        // Create session object and use it to retrieve a list of all sheets in the app.
+        let listObject = await app.createSessionObject({
+            qInfo: {
+                qType: 'sheetlist'
+            },
+            qAppObjectListDef: {
+                qType: 'sheet',
+                qData: {
+                    'id': '/cells'
+                }
+            }
+        });
 
-                                    // Getting a chart's layout force a calculation of the chart
-                                    return chartObject.getLayout().then((chartLayout) => {
+        layout = await listObject.getLayout();
 
-                                        logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
-                                    })
-                                    .catch(err => {
-                                        // Return error msg
-                                        logger.log('error', 'getLayout error: ' + JSON.stringify(err));
-                                        return;
-                                    })
-                                })
-                                .catch(err => {
-                                    // Return error msg
-                                    logger.log('error', 'getObject error: ' + JSON.stringify(err));
-                                    return;
-                                }));
-                            });
-                        });
-                        Promise.all(promises).then(
-                            function(){
-                                app.session.close();
-                                logger.log('info', 'Cached ' + visCnt + ' visualizations on ' + sheetCnt + ' sheets.');
-                                logger.log('verbose', 'Heap used: '+process.memoryUsage().heapUsed);
-                            }
-                        );
+        let promises = [];
+        logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
+        layout.qAppObjectList.qItems.forEach(function (sheet) {
 
+            sheetCnt++;
+            // Loop over all cells (each chart is a cell on a sheet)
+            sheet.qData.cells.forEach(function (cell) {
+
+                visCnt++;
+                // Get object reference to chart, based on its name/id
+                promises.push(app.getObject(cell.name).then((chartObject) => {
+
+                        // Getting a chart's layout force a calculation of the chart
+                        return chartObject.getLayout()
+                            .then((chartLayout) => {
+                                logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
+                            })
+                            .catch(err => {
+                                // Return error msg
+                                logger.log('error', 'getLayout error: ' + JSON.stringify(err));
+                                return;
+                            })
                     })
                     .catch(err => {
                         // Return error msg
-                        logger.log('error', 'sheetlist error: ' + JSON.stringify(err));
+                        logger.log('error', 'getObject error: ' + JSON.stringify(err));
                         return;
-                    });
-                });
-            }else{
+                    }));
+            });
+        });
+
+        Promise.all(promises).then(
+            function () {
                 app.session.close();
+                logger.log('info', `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`);
+                logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
             }
-
-        })
-        .catch(err => {
-            // Return error msg
-            logger.log('error', 'openApp error: ' + JSON.stringify(err));
-            return;
-        })
-    })
-    .catch(err => {
-        // Return error msg
-        logger.log('error', 'enigma error: ' + JSON.stringify(err));
-        return;
-    });
-
+        );
+    } else {
+        app.session.close();
+        logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
+    }
 }

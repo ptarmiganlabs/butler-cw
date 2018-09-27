@@ -1,6 +1,8 @@
 # Do not store config files in git
 config/default.json
+config/default.yaml
 config/apps.yaml
+config/production.yaml
 
 # Logs
 logs

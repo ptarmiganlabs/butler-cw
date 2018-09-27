@@ -1,0 +1,16 @@
+# docker-compose.yml
+version: '2.2'
+services:
+  butler-cw:
+    image: ptarmiganlabs/butler-cw:latest
+    init: true
+    container_name: butler-cw
+    restart: always
+    volumes:
+      # Make config file accessible outside of container
+      - "./config:/nodeapp/config"
+      - "./log:/nodeapp/log"
+    environment:
+      - "NODE_ENV=production"
+    logging:
+      driver: json-file

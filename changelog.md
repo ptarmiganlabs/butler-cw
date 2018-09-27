@@ -7,8 +7,8 @@
 3. Added uptime info (hours, minutes, seconds since the service was started) in the debug logs.
 4. Major refactoring of all source code, including migrating (most of the code) to use async/await instead of promises.
 5. Fixed bug where apps that were opened/cached very frequently (several times per minute) would not be properly handled. In some cases, some chart objects would not be opened.
-6. Added log file on disk for debug level messages
-7. Updated documentation
+6. Added log file on disk for debug level messages.
+7. Updated documentation.
 
 ## v1
 

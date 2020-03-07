@@ -5,6 +5,7 @@ config/apps.yaml
 config/production.yaml
 
 # Logs
+log/*
 logs
 *.log
 npm-debug.log*

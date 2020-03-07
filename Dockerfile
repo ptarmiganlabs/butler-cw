@@ -1,5 +1,9 @@
-# Use Node 8 LTS
-FROM node:8
+# Use Node 12 LTS
+FROM node:12-stretch
+
+# Add some information about the image
+LABEL maintainer="Göran Sander mountaindude@ptarmiganlabs.com"
+LABEL description="Cache warming tool for Qlik Sense Enterprise."
 
 # Create app dir inside container
 WORKDIR /nodeapp
@@ -18,6 +22,8 @@ RUN groupadd -r nodejs \
 
 USER nodejs
 
+# Set up Docker healthcheck
+HEALTHCHECK --interval=12s --timeout=12s --start-period=30s CMD ["node", "healthcheck.js"]
 
 CMD ["node", "index.js"]
 

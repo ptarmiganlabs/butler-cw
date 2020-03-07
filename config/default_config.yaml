@@ -1,12 +1,19 @@
 # Rename this file to production.yaml, and fill in data as needed below.
 
-# Possible log levels are silly, debug, verbose, info, warn, error
-defaultLogLevel: info
+# Logging configuration
+logLevel: info                    # Log level. Possible log levels are silly, debug, verbose, info, warn, error
+fileLogging: false                # true/false to enable/disable logging to disk file
 
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
 # remove or comment out if running on desktop
-clientCertPath: "/path/to/client/cert/client.pem"
-clientCertKeyPath: "/path/to/client/cert/client_key.pem"
+clientCertPath: /path/to/client/cert/client.pem
+clientCertKeyPath: /path/to/client/cert/client_key.pem
+clientCertCAPath: /path/to/client/cert/root.pem
+# If running in a Docker container, the cert paths MUST be the following
+# clientCertPath: /nodeapp/config/certificate/client.pem
+# clientCertKeyPath: /nodeapp/config/certificate/client_key.pem
+# clientCertCAPath: /nodeapp/config/certificate/root.pem
+
 
 # QIX version to use
 qixVersion: 12.170.2
@@ -17,19 +24,16 @@ appConfig:
   configSource: disk
   
   # Leave strings empty if disk config not used
-  diskConfigFile: "./config/apps.yaml"
+  diskConfigFile: ./config/apps.yaml
 
   # Leave strings empty if github not used
   github:
     host: api.github.com
-    username: "<username>"
+    username: <username>
     password: pwd or access token
-    owner: "<repo owner>"
-    repo: "<repo name, e.g. qliksense-cache-warming>"
+    owner: <repo owner>
+    repo: <repo name, e.g. qliksense-cache-warming>
     path: config/apps.yaml
 
 # Is connection to Sense engine secure (https)?
 isSecure: true
-
-# Directory where log files are stored (no trailing / )
-logDirectory: "/path/to/log/directory"

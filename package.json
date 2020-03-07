@@ -1,6 +1,6 @@
 {
   "name": "butler-cw",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Cache warming app for Qlik Sense",
   "main": "index.js",
   "directories": {
@@ -25,13 +25,15 @@
   },
   "homepage": "https://github.com/ptarmiganlabs/butler-cw#readme",
   "dependencies": {
-    "@octokit/rest": "^15.12.1",
-    "bluebird": "^3.5.0",
-    "config": "^2.0.1",
-    "enigma.js": "^2.3.0",
-    "js-yaml": "^3.9.1",
+    "@octokit/rest": "^17.0.0",
+    "bluebird": "^3.7.2",
+    "config": "^3.3.0",
+    "enigma.js": "^2.6.3",
+    "js-yaml": "^3.13.1",
     "later": "^1.2.0",
-    "winston": "^3.1.0",
-    "ws": "^6.0.0"
+    "restify": "^8.5.1",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2",
+    "ws": "^7.2.1"
   }
 }

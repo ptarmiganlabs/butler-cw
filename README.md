@@ -1,11 +1,13 @@
+# A cache warming tool for Qlik Sense
+
+[![Build Status](https://cloud.drone.io/api/badges/ptarmiganlabs/butler-cw/status.svg)](https://cloud.drone.io/ptarmiganlabs/butler-cw)
+
 ![Butler CW](img/butler_cw.png)
-
-
-A cache warming tool for Qlik Sense. 
 
 CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them.
 
 ## Background
+
 A year or two ago Qlik Sense Enterprise moved to something called "[shared persistence](http://help.qlik.com/en-US/sense/3.2/Subsystems/Installation/Content/InstallationLicensing/Install-Shared.htm)". It simply means that the Sense apps are stored on a central file server, rather than on each individual server in the Sense environment.  
 Sshared persistence is today the only supported storage model for Qlik Sense Enterprise.  
 

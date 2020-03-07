@@ -2,57 +2,76 @@ const enigma = require('enigma.js');
 const SenseUtilities = require('enigma.js/sense-utilities');
 const WebSocket = require('ws');
 const fs = require('fs');
-const util = require('util');
+// const util = require('util');
 var config = require('config');
 var yaml = require('js-yaml');
 var later = require('later');
 var Promise = require('bluebird');
 var GitHubApi = require('@octokit/rest');
 var winston = require('winston');
+require('winston-daily-rotate-file');
+var restify = require('restify');
+const path = require('path');
 
 
-// Set up Winston logger, logging both to console and different disk files
-var logger = winston.createLogger({
-    transports: [
-        new winston.transports.Console({
-            name: 'console_log',
-            level: config.get('defaultLogLevel'),
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.colorize(),
-                winston.format.simple(),
-                winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
-            )
+// const corsMiddleware = require('restify-cors-middleware');
+// var errors = require('restify-errors');
+
+// Get app version from package.json file
+var appVersion = require('./package.json').version;
+
+// Set up logger with timestamps and colors, and optional logging to disk file
+const logTransports = [];
+
+
+logTransports.push(
+    new winston.transports.Console({
+        name: 'console',
+        level: config.get('logLevel'),
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.colorize(),
+            winston.format.simple(),
+            winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
+        ),
+    }),
+);
+
+if (config.get('fileLogging')) {
+    logTransports.push(
+        new winston.transports.DailyRotateFile({
+            // dirname: path.join(__dirname, config.get('logDirectory')),
+            dirname: path.join(__dirname, 'log'),
+            filename: 'butler-cw.%DATE%.log',
+            level: config.get('logLevel'),
+            datePattern: 'YYYY-MM-DD',
+            maxFiles: '30d',
         }),
-        new winston.transports.File({
-            name: 'file_info',
-            filename: config.get('logDirectory') + '/info.log',
-            level: 'info'
-        }),
-        new winston.transports.File({
-            name: 'file_verbose',
-            filename: config.get('logDirectory') + '/verbose.log',
-            level: 'verbose'
-        }),
-        new winston.transports.File({
-            name: 'file_debug',
-            filename: config.get('logDirectory') + '/debug.log',
-            level: 'debug'
-        }),
-        new winston.transports.File({
-            name: 'file_error',
-            filename: config.get('logDirectory') + '/error.log',
-            level: 'error'
-        })
-    ],
+    );
+}
+
+logger = winston.createLogger({
+    transports: logTransports,
     format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
-    )
+        winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
+    ),
 });
 
-// Set default log level
-logger.log('info', 'Starting Qlik Sense cache warmer.');
+// Function to get current logging level
+getLoggingLevel = () => {
+    return logTransports.find(transport => {
+        return transport.name == 'console';
+    }).level;
+};
+
+
+logger.info('--------------------------------------');
+logger.info('Starting Qlik Sense cache warmer.');
+logger.info(`Log level is: ${getLoggingLevel()}`);
+logger.info(`App version is: ${appVersion}`);
+logger.info('--------------------------------------');
+
 
 // Read QIX schema
 const schema = require(`enigma.js/schemas/${config.get('qixVersion')}.json`);
@@ -63,6 +82,34 @@ const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('cl
 
 // Formatter for numbers
 const formatter = new Intl.NumberFormat('en-US');
+
+// Set up Docker healthcheck server
+// Create restServer object
+var restServerDockerHealth = restify.createServer({
+    name: 'Docker healthcheck for Butler App Duplicator',
+    version: appVersion,
+});
+
+// Enable parsing of http parameters
+restServerDockerHealth.use(restify.plugins.queryParser());
+
+restServerDockerHealth.get(
+    {
+        path: '/',
+        flags: 'i',
+    },
+    (req, res, next) => {
+        logger.verbose(`Docker healthcheck API endpoint called.`);
+
+        res.send(0);
+        next();
+    },
+);
+
+// Start Docker healthcheck REST server on port 12398
+restServerDockerHealth.listen(12398, function() {
+    logger.info(`Docker healthcheck server now listening on ${restServerDockerHealth.url}`);
+});
 
 
 // Log uptime to console

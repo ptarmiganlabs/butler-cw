@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.1
+
+1. Minor: Fix incorrect network name in docker-compose file.
+
 ## 2.1
 
 1. Updated dependencies to latest versions, bringing in bug and security fixes.

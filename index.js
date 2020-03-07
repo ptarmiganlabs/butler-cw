@@ -67,7 +67,7 @@ getLoggingLevel = () => {
 
 
 logger.info('--------------------------------------');
-logger.info('Starting Qlik Sense cache warmer.');
+logger.info('Starting Butler CW.');
 logger.info(`Log level is: ${getLoggingLevel()}`);
 logger.info(`App version is: ${appVersion}`);
 logger.info('--------------------------------------');

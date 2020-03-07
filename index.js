@@ -174,7 +174,7 @@ try {
             type: 'basic',
             username: config.get('appConfig.github.username'),
             password: config.get('appConfig.github.password')
-        })
+        });
 
         github.repos.getContent({
             owner: config.get('appConfig.github.owner'),
@@ -186,10 +186,10 @@ try {
             logger.log('debug', appConfigYaml);
 
             loadAppConfig(appConfigYaml);
-        })
+        });
     }
 } catch (e) {
-    logger.log('error', 'Error while reading app config data: ' + e)
+    logger.log('error', 'Error while reading app config data: ' + e);
 }
 
 
@@ -204,18 +204,18 @@ function loadAppConfig(appConfig) {
         appConfigDoc.apps.forEach(function (appConfig) {
             var sched = later.parse.text(appConfig.freq);
             var t = later.setInterval(function () {
-                loadAppIntoCache(appConfig)
+                loadAppIntoCache(appConfig);
             }, sched);
 
             // Do an initial caching run for current app
             var sched2 = later.parse.recur().every(5).second();
             var t2 = later.setTimeout(function () {
-                loadAppIntoCache(appConfig)
+                loadAppIntoCache(appConfig);
             }, sched2);
         }, this);
 
     } catch (e) {
-        logger.log('error', 'Error while reading app config data: ' + e)
+        logger.log('error', 'Error while reading app config data: ' + e);
     }
 
 }
@@ -256,7 +256,7 @@ async function loadAppIntoCache(appConfig) {
     } catch (err) {
         logger.log('error', 'enigmaOpen error: ' + JSON.stringify(err));
         return;
-    };
+    }
 
     const g = global;
     // logger.log('debug', 'DEBUG global: ' + g);
@@ -272,7 +272,7 @@ async function loadAppIntoCache(appConfig) {
     } catch (err) {
         logger.log('error', 'openDoc error: ' + JSON.stringify(err));
         return;
-    };
+    }
 
     // Clear all selections
     try {
@@ -281,7 +281,8 @@ async function loadAppIntoCache(appConfig) {
     } catch (err) {
         logger.log('error', 'clearAll error: ' + JSON.stringify(err));
         return;
-    };
+    }
+
     // Should we step through all sheets of the app?
     if (appConfig.appStepThroughSheets) {
 
@@ -325,7 +326,7 @@ async function loadAppIntoCache(appConfig) {
                                 // Return error msg
                                 logger.log('error', 'getLayout error: ' + JSON.stringify(err));
                                 return;
-                            })
+                            });
                     })
                     .catch(err => {
                         // Return error msg

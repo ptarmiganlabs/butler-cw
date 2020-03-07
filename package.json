@@ -27,7 +27,7 @@
   "dependencies": {
     "@octokit/rest": "^15.12.1",
     "bluebird": "^3.5.0",
-    "config": "^2.0.1",
+    "config": "^3.0.0",
     "enigma.js": "^2.3.0",
     "js-yaml": "^3.9.1",
     "later": "^1.2.0",

@@ -4,6 +4,12 @@
 logLevel: info                    # Log level. Possible log levels are silly, debug, verbose, info, warn, error
 fileLogging: false                # true/false to enable/disable logging to disk file
 
+# Heartbeats can be used to send "I'm alive" messages to any other tool, e.g. a infrastructure monitoring tool
+heartbeat:
+  enabled: true
+  remoteURL: http://healthcheck.ptarmiganlabs.net:8000/ping/138514b0-882a-4a44-8548-96f7d16c9242
+  frequency: every 1 hour     # https://bunkat.github.io/later/parsers.html
+
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
 # remove or comment out if running on desktop
 clientCertPath: /path/to/client/cert/client.pem
@@ -13,7 +19,6 @@ clientCertCAPath: /path/to/client/cert/root.pem
 # clientCertPath: /nodeapp/config/certificate/client.pem
 # clientCertKeyPath: /nodeapp/config/certificate/client_key.pem
 # clientCertCAPath: /nodeapp/config/certificate/root.pem
-
 
 # QIX version to use
 qixVersion: 12.170.2

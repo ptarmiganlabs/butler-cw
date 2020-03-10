@@ -12,6 +12,7 @@ var winston = require('winston');
 require('winston-daily-rotate-file');
 var restify = require('restify');
 const path = require('path');
+heartbeat = require('./heartbeat.js');
 
 
 // const corsMiddleware = require('restify-cors-middleware');
@@ -140,6 +141,13 @@ var uptimeCheck = later.setInterval(function () {
 
     logger.log('debug', '--------------------------------');
 }, later.parse.text('every 5 seconds'));
+
+
+// Set up extraction of sessions data
+if (config.get('heartbeat.enabled') == true) {
+    heartbeat.setupHeartbeatTimer(config, logger);
+}
+
 
 
 // Should per-app config data be read from disk or GitHub?

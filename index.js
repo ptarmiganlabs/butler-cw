@@ -143,7 +143,7 @@ var uptimeCheck = later.setInterval(function () {
 }, later.parse.text('every 5 seconds'));
 
 
-// Set up extraction of sessions data
+// Set up heartbeats
 if (config.get('heartbeat.enabled') == true) {
     heartbeat.setupHeartbeatTimer(config, logger);
 }

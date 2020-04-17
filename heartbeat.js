@@ -22,7 +22,7 @@ function setupHeartbeatTimer(config, logger) {
 
     try {
         logger.debug(
-            `HEARTBEAT: Setting up heartbeat to remote : ${config.get('heartbeat.remoteURL')}`,
+            `HEARTBEAT: Setting up heartbeat to remote: ${config.get('heartbeat.remoteURL')}`,
         );
 
 

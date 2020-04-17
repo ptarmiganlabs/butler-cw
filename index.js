@@ -12,7 +12,7 @@ var winston = require('winston');
 require('winston-daily-rotate-file');
 var restify = require('restify');
 const path = require('path');
-
+heartbeat = require('./heartbeat.js');
 
 // const corsMiddleware = require('restify-cors-middleware');
 // var errors = require('restify-errors');
@@ -22,7 +22,6 @@ var appVersion = require('./package.json').version;
 
 // Set up logger with timestamps and colors, and optional logging to disk file
 const logTransports = [];
-
 
 logTransports.push(
     new winston.transports.Console({
@@ -65,20 +64,20 @@ getLoggingLevel = () => {
     }).level;
 };
 
-
 logger.info('--------------------------------------');
 logger.info('Starting Butler CW.');
 logger.info(`Log level is: ${getLoggingLevel()}`);
 logger.info(`App version is: ${appVersion}`);
 logger.info('--------------------------------------');
 
-
 // Read QIX schema
 const schema = require(`enigma.js/schemas/${config.get('qixVersion')}.json`);
 
 // Read certificates
 const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')) : null;
-const client_key = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertKeyPath')) : null;
+const client_key = config.has('clientCertPath')
+    ? fs.readFileSync(config.get('clientCertKeyPath'))
+    : null;
 
 // Formatter for numbers
 const formatter = new Intl.NumberFormat('en-US');
@@ -107,10 +106,9 @@ restServerDockerHealth.get(
 );
 
 // Start Docker healthcheck REST server on port 12398
-restServerDockerHealth.listen(12398, function() {
+restServerDockerHealth.listen(12398, function () {
     logger.info(`Docker healthcheck server now listening on ${restServerDockerHealth.url}`);
 });
-
 
 // Log uptime to console
 Number.prototype.toTime = function (isSec) {
@@ -119,9 +117,10 @@ Number.prototype.toTime = function (isSec) {
         /* limit fraction */
         fmt = new Date(ms).toISOString().slice(11, lm);
 
-    if (ms >= 8.64e7) { /* >= 24 hours */
+    if (ms >= 8.64e7) {
+        /* >= 24 hours */
         var parts = fmt.split(/:(?=\d{2}:)/);
-        parts[0] -= -24 * (ms / 8.64e7 | 0);
+        parts[0] -= -24 * ((ms / 8.64e7) | 0);
         return parts.join(':');
     }
 
@@ -135,24 +134,35 @@ var uptimeCheck = later.setInterval(function () {
     startIterations++;
     let uptime = Date.now() - startTime;
     logger.log('debug', '--------------------------------');
-    logger.log('debug', 'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + formatter.format(uptime / 1000) + ' seconds');
-    logger.log('debug', 'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + uptime.toTime());
+    logger.log(
+        'debug',
+        'Iteration # ' +
+            formatter.format(startIterations) +
+            ', Uptime: ' +
+            formatter.format(uptime / 1000) +
+            ' seconds',
+    );
+    logger.log(
+        'debug',
+        'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + uptime.toTime(),
+    );
 
     logger.log('debug', '--------------------------------');
 }, later.parse.text('every 5 seconds'));
 
+// Set up heartbeats, if enabled in the config file
+if (config.get('heartbeat.enabled') == true) {
+    heartbeat.setupHeartbeatTimer(config, logger);
+}
 
-// Should per-app config data be read from disk or GitHub?
+// Should per-app config data be read from disk file or GitHub?
 var appConfigYaml = '';
 
 try {
     if (config.get('appConfig.configSource') == 'disk') {
-
         appConfigYaml = fs.readFileSync('./config/apps.yaml', 'utf8');
         loadAppConfig(appConfigYaml);
-
     } else if (config.get('appConfig.configSource') == 'github') {
-
         var github = new GitHubApi({
             // optional
             // debug: true,
@@ -160,45 +170,48 @@ try {
             // host: config.get('appConfig.github.host'),
             // pathPrefix: '/api/v3',
             headers: {
-                'user-agent': 'Qlik-Sense-cache-warmer'
+                'user-agent': 'Qlik-Sense-cache-warmer',
             },
             // custom GitHub Enterprise URL
             baseUrl: 'https://api.github.com',
 
             // Promise: Promise,
             // followRedirects: false,
-            timeout: 5000
+            timeout: 5000,
         });
 
         github.authenticate({
             type: 'basic',
             username: config.get('appConfig.github.username'),
-            password: config.get('appConfig.github.password')
+            password: config.get('appConfig.github.password'),
         });
 
-        github.repos.getContent({
-            owner: config.get('appConfig.github.owner'),
-            repo: config.get('appConfig.github.repo'),
-            path: config.get('appConfig.github.path')
-        }).then((res) => {
-            appConfigYaml = Buffer.from(res.data.content, 'base64').toString();
-            logger.log('debug', 'apps config loaded from GitHub: ');
-            logger.log('debug', appConfigYaml);
+        github.repos
+            .getContent({
+                owner: config.get('appConfig.github.owner'),
+                repo: config.get('appConfig.github.repo'),
+                path: config.get('appConfig.github.path'),
+            })
+            .then(res => {
+                appConfigYaml = Buffer.from(res.data.content, 'base64').toString();
+                logger.log('debug', 'apps config loaded from GitHub: ');
+                logger.log('debug', appConfigYaml);
 
-            loadAppConfig(appConfigYaml);
-        });
+                loadAppConfig(appConfigYaml);
+            });
     }
 } catch (e) {
     logger.log('error', 'Error while reading app config data: ' + e);
 }
 
-
-
 function loadAppConfig(appConfig) {
     // Load app config doc, or throw exception on error
     try {
         var appConfigDoc = yaml.safeLoad(appConfigYaml);
-        logger.log('debug', 'Loading app config using following config:\n ' + JSON.stringify(appConfigDoc, null, 2));
+        logger.log(
+            'debug',
+            'Loading app config using following config:\n ' + JSON.stringify(appConfigDoc, null, 2),
+        );
 
         // Loop over all apps in app config file
         appConfigDoc.apps.forEach(function (appConfig) {
@@ -213,13 +226,10 @@ function loadAppConfig(appConfig) {
                 loadAppIntoCache(appConfig);
             }, sched2);
         }, this);
-
     } catch (e) {
         logger.log('error', 'Error while reading app config data: ' + e);
     }
-
 }
-
 
 async function loadAppIntoCache(appConfig) {
     logger.log('verbose', 'Starting loading of appid ' + appConfig.appId);
@@ -229,23 +239,23 @@ async function loadAppIntoCache(appConfig) {
         host: appConfig.server,
         port: config.has('clientCertPath') ? 4747 : 4848, // Engine /Desktop port
         appId: appConfig.appId,
-        secure: config.get('isSecure')
+        secure: config.get('isSecure'),
     };
 
     const configEnigma = {
         // qixSchema,
         schema,
         url: SenseUtilities.buildUrl(urlConfig),
-        createSocket: url => new WebSocket(url, {
-            // ca: rootCert,
-            key: client_key,
-            cert: client,
-            headers: {
-                'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository'
-            },
-            rejectUnauthorized: false
-        })
-
+        createSocket: url =>
+            new WebSocket(url, {
+                // ca: rootCert,
+                key: client_key,
+                cert: client,
+                headers: {
+                    'X-Qlik-User': 'UserDirectory=Internal;UserId=sa_repository',
+                },
+                rejectUnauthorized: false,
+            }),
     };
     logger.log('debug', 'DEBUG SenseUtilities: ' + SenseUtilities.buildUrl(urlConfig));
 
@@ -259,7 +269,6 @@ async function loadAppIntoCache(appConfig) {
     }
 
     const g = global;
-    // logger.log('debug', 'DEBUG global: ' + g);
 
     // Open document/app
     logger.log('debug', 'Connecting to QIX engine on ' + appConfig.server);
@@ -285,7 +294,6 @@ async function loadAppIntoCache(appConfig) {
 
     // Should we step through all sheets of the app?
     if (appConfig.appStepThroughSheets) {
-
         var sheetCnt = 0,
             visCnt = 0;
         logger.log('debug', appConfig.appId + ': Get list of all sheets');
@@ -293,14 +301,14 @@ async function loadAppIntoCache(appConfig) {
         // Create session object and use it to retrieve a list of all sheets in the app.
         let listObject = await app.createSessionObject({
             qInfo: {
-                qType: 'sheetlist'
+                qType: 'sheetlist',
             },
             qAppObjectListDef: {
                 qType: 'sheet',
                 qData: {
-                    'id': '/cells'
-                }
-            }
+                    id: '/cells',
+                },
+            },
         });
 
         layout = await listObject.getLayout();
@@ -308,41 +316,54 @@ async function loadAppIntoCache(appConfig) {
         let promises = [];
         logger.log('debug', appConfig.appId + ': Retrieved list of sheets');
         layout.qAppObjectList.qItems.forEach(function (sheet) {
-
             sheetCnt++;
             // Loop over all cells (each chart is a cell on a sheet)
             sheet.qData.cells.forEach(function (cell) {
-
                 visCnt++;
                 // Get object reference to chart, based on its name/id
-                promises.push(app.getObject(cell.name).then((chartObject) => {
-
-                        // Getting a chart's layout force a calculation of the chart
-                        return chartObject.getLayout()
-                            .then((chartLayout) => {
-                                logger.log('debug', 'Chart cached (app=' + appConfig.appId + ', object type=' + chartLayout.qInfo.qType + ', object ID=' + chartLayout.qInfo.qId + ', object=' + chartLayout.title);
-                            })
-                            .catch(err => {
-                                // Return error msg
-                                logger.log('error', 'getLayout error: ' + JSON.stringify(err));
-                                return;
-                            });
-                    })
-                    .catch(err => {
-                        // Return error msg
-                        logger.log('error', 'getObject error: ' + JSON.stringify(err));
-                        return;
-                    }));
+                promises.push(
+                    app
+                        .getObject(cell.name)
+                        .then(chartObject => {
+                            // Getting a chart's layout force a calculation of the chart
+                            return chartObject
+                                .getLayout()
+                                .then(chartLayout => {
+                                    logger.log(
+                                        'debug',
+                                        'Chart cached (app=' +
+                                            appConfig.appId +
+                                            ', object type=' +
+                                            chartLayout.qInfo.qType +
+                                            ', object ID=' +
+                                            chartLayout.qInfo.qId +
+                                            ', object=' +
+                                            chartLayout.title,
+                                    );
+                                })
+                                .catch(err => {
+                                    // Return error msg
+                                    logger.log('error', 'getLayout error: ' + JSON.stringify(err));
+                                    return;
+                                });
+                        })
+                        .catch(err => {
+                            // Return error msg
+                            logger.log('error', 'getObject error: ' + JSON.stringify(err));
+                            return;
+                        }),
+                );
             });
         });
 
-        Promise.all(promises).then(
-            function () {
-                app.session.close();
-                logger.log('info', `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`);
-                logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
-            }
-        );
+        Promise.all(promises).then(function () {
+            app.session.close();
+            logger.log(
+                'info',
+                `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`,
+            );
+            logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
+        });
     } else {
         app.session.close();
         logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);

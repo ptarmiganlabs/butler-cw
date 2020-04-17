@@ -3,7 +3,7 @@ FROM node:12-stretch
 
 # Add some information about the image
 LABEL maintainer="Göran Sander mountaindude@ptarmiganlabs.com"
-LABEL description="Cache warming tool for Qlik Sense Enterprise."
+LABEL description="Cache warming tool for Qlik Sense Enterprise on Windows."
 
 # Create app dir inside container
 WORKDIR /nodeapp

@@ -74,10 +74,9 @@ logger.info('--------------------------------------');
 const schema = require(`enigma.js/schemas/${config.get('qixVersion')}.json`);
 
 // Read certificates
+const rootCert = config.has('clientCertCAPath') ? fs.readFileSync(config.get('clientCertCAPath')) : null;
 const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')) : null;
-const client_key = config.has('clientCertPath')
-    ? fs.readFileSync(config.get('clientCertKeyPath'))
-    : null;
+const client_key = config.has('clientCertKeyPath') ? fs.readFileSync(config.get('clientCertKeyPath')) : null;
 
 // Formatter for numbers
 const formatter = new Intl.NumberFormat('en-US');
@@ -248,7 +247,7 @@ async function loadAppIntoCache(appConfig) {
         url: SenseUtilities.buildUrl(urlConfig),
         createSocket: url =>
             new WebSocket(url, {
-                // ca: rootCert,
+                ca: rootCert,
                 key: client_key,
                 cert: client,
                 headers: {

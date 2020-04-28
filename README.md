@@ -140,7 +140,9 @@ proton:butler-cw-docker goran$ cat config/production.yaml
 logLevel: info                    # Log level. Possible log levels are silly, debug, verbose, info, warn, error
 fileLogging: false                # true/false to enable/disable logging to disk file
 
-# Heartbeats can be used to send "I'm alive" messages to any other tool, e.g. an infrastructure monitoring tool
+# Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
+# The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know
+# that Butler CW is alive.
 heartbeat:
   enabled: false
   remoteURL: http://my.monitoring.server/some/path/

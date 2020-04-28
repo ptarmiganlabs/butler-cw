@@ -15,7 +15,7 @@ steps:
     # auto_tag: true
     tags:
     - latest
-    - '2.2.0'
+    - '2.2.1'
     - '2.2'
     - '2'
   when:

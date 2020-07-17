@@ -137,20 +137,34 @@ proton:butler-cw-docker goran$ cat config/production.yaml
 # Rename this file to production.yaml, and fill in data as needed below.
 
 # Logging configuration
-logLevel: info                    # Log level. Possible log levels are silly, debug, verbose, info, warn, error
-fileLogging: false                # true/false to enable/disable logging to disk file
+logLevel: verbose         # Log level. Possible log levels are silly, debug, verbose, info, warn, error
+fileLogging: true         # true/false to enable/disable logging to disk file
 
 # Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
 # The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know
 # that Butler CW is alive.
 heartbeat:
-  enabled: false
-  remoteURL: http://my.monitoring.server/some/path/
-  frequency: every 1 hour         # https://bunkat.github.io/later/parsers.html
+  enabled: true
+  remoteURL: http://healthcheck.ptarmiganlabs.net/ping/138514b0-882a-4a44-8548-96f7d16c9242
+  frequency: every 30 seconds         # https://bunkat.github.io/later/parsers.html
+
+# Docker health checks are used when running Butler CW as a Docker container.
+# The Docker engine will call the container's health check REST endpoint with a set interval to determine
+# whether the container is alive/well or not.
+# If you are not running Butler CW in Docker you can safely disable this feature.
+dockerHealthCheck:
+  enabled: true    # Control whether a REST endpoint will be set up to serve Docker health check messages
+  port: 12398      # Port the Docker health check service runs on (if enabled)
+
+# Uptime monitor
+# When enabled, Butler CW will write info on uptime and used memory to log files
+uptimeMonitor:
+  enabled: true                   # Should uptime messages be written to the console and log files?
+  frequency: every 10 seconds     # https://bunkat.github.io/later/parsers.html
+  logLevel: verbose               # Starting at what log level should uptime messages be shown?
 
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
 # remove or comment out if running on desktop
-# If running in a Docker container, the cert paths MUST be the following
 clientCertPath: /nodeapp/config/certificate/client.pem
 clientCertKeyPath: /nodeapp/config/certificate/client_key.pem
 clientCertCAPath: /nodeapp/config/certificate/root.pem
@@ -162,7 +176,7 @@ qixVersion: 12.170.2
 appConfig:
   # Valid options are disk, github
   configSource: disk
-  
+
   # Leave strings empty if disk config not used
   diskConfigFile: ./config/apps.yaml
 
@@ -244,90 +258,72 @@ Ok, all good. Let's start Butler CW using docker-compose:
 ```bash
 proton:butler-cw-docker goran$ docker-compose up
 Pulling butler-cw (ptarmiganlabs/butler-cw:latest)...
-latest: Pulling from ptarmiganlabs/butler-cw
-f189db1b88b3: Already exists
-3d06cf2f1b5e: Already exists
-687ebdda822c: Already exists
-99119ca3f34e: Already exists
-e771d6006054: Already exists
-b0cc28d0be2c: Already exists
-7225c154ac40: Already exists
-7659da3c5093: Already exists
-32189a059676: Pull complete
-ccdaa7888b03: Pull complete
-2de6787155c6: Pull complete
-330f86b51d3a: Pull complete
-2f36698de594: Pull complete
-Digest: sha256:0bd2c2cdcd2971b11c6a52073d59cc748c6cfa7915bf7915deca3b5ed7d0d9a3
-Status: Downloaded newer image for ptarmiganlabs/butler-cw:latest
-Creating butler-cw ... done
+linux-amd64: Pulling from ptarmiganlabs/butler-cw
+81fc19181915: Already exists
+ee49ee6a23d1: Already exists
+828510924538: Already exists
+a8f58c4fcca0: Already exists
+33699d7df21e: Already exists
+923705ffa8f8: Already exists
+c214b6cd5b8c: Pull complete
+4c73d8285dba: Pull complete
+1c58ef740d94: Pull complete
+e55870d5ab63: Pull complete
+5a60a14b0157: Pull complete
+127adc529fbb: Pull complete
+f3a2df8ab2d4: Pull complete
+1fb95730c902: Pull complete
+Digest: sha256:582d3bbf50b78d2c444ba529c27abfda2bc00cd9e403a149a1cf55f4dc578e0c
+Status: Downloaded newer image for ptarmiganlabs/butler-cw:linux-amd64
+Recreating butler-cw ... done
 Attaching to butler-cw
-butler-cw    | 2018-09-27T20:29:53.182Z info: Starting Qlik Sense cache warmer.
-butler-cw    | 2018-09-27T20:29:53.215Z debug: Loading app config using following config:
-butler-cw    |  {
-butler-cw    |   "apps": [
-butler-cw    |     {
-butler-cw    |       "server": "192.168.1.80",
-butler-cw    |       "appId": "c36bfbdb-0c4b-4d57-9939-b851d2af1cb5",
-butler-cw    |       "appDescription": "License monitor",
-butler-cw    |       "appStepThroughSheets": true,
-butler-cw    |       "freq": "every 60 minutes"
-butler-cw    |     },
-butler-cw    |     {
-butler-cw    |       "server": "192.168.1.80",
-butler-cw    |       "appId": "dead6f4a-da0b-4b9c-82a2-3f94fdc72599",
-butler-cw    |       "appDescription": "Meetup.com",
-butler-cw    |       "appStepThroughSheets": true,
-butler-cw    |       "freq": "every 10 minutes"
-butler-cw    |     },
-butler-cw    |     {
-butler-cw    |       "server": "192.168.1.80",
-butler-cw    |       "appId": "492a1bca-1c41-4a01-9104-543a2334c465",
-butler-cw    |       "appDescription": "2018 sales targets",
-butler-cw    |       "appStepThroughSheets": true,
-butler-cw    |       "freq": "every 30 minutes"
-butler-cw    |     }
-butler-cw    |   ]
-butler-cw    | }
-butler-cw    | 2018-09-27T20:29:55.177Z debug: --------------------------------
-butler-cw    | 2018-09-27T20:29:55.178Z debug: Iteration # 1, Uptime: 1.976 seconds
-butler-cw    | 2018-09-27T20:29:55.179Z debug: Iteration # 1, Uptime: 00:00:01.976
-butler-cw    | 2018-09-27T20:29:55.179Z debug: --------------------------------
-butler-cw    | 2018-09-27T20:29:55.189Z verbose: Starting loading of appid c36bfbdb-0c4b-4d57-9939-b851d2af1cb5
-butler-cw    | 2018-09-27T20:29:55.190Z debug: DEBUG SenseUtilities: wss://192.168.1.80:4747/app/c36bfbdb-0c4b-4d57-9939-b851d2af1cb5
-butler-cw    | 2018-09-27T20:29:55.256Z verbose: Starting loading of appid dead6f4a-da0b-4b9c-82a2-3f94fdc72599
-butler-cw    | 2018-09-27T20:29:55.261Z debug: DEBUG SenseUtilities: wss://192.168.1.80:4747/app/dead6f4a-da0b-4b9c-82a2-3f94fdc72599
-butler-cw    | 2018-09-27T20:29:55.268Z verbose: Starting loading of appid 492a1bca-1c41-4a01-9104-543a2334c465
-butler-cw    | 2018-09-27T20:29:55.269Z debug: DEBUG SenseUtilities: wss://192.168.1.80:4747/app/492a1bca-1c41-4a01-9104-543a2334c465
-butler-cw    | 2018-09-27T20:29:55.354Z debug: Connecting to QIX engine on 192.168.1.80
-butler-cw    | 2018-09-27T20:29:55.563Z debug: Connecting to QIX engine on 192.168.1.80
-butler-cw    | 2018-09-27T20:29:55.575Z debug: Connecting to QIX engine on 192.168.1.80
-butler-cw    | 2018-09-27T20:29:55.759Z info: App loaded: dead6f4a-da0b-4b9c-82a2-3f94fdc72599
-butler-cw    | 2018-09-27T20:29:55.770Z info: App loaded: 492a1bca-1c41-4a01-9104-543a2334c465
-butler-cw    | 2018-09-27T20:29:55.802Z debug: dead6f4a-da0b-4b9c-82a2-3f94fdc72599: Clear selections
-butler-cw    | 2018-09-27T20:29:55.803Z debug: dead6f4a-da0b-4b9c-82a2-3f94fdc72599: Get list of all sheets
-butler-cw    | 2018-09-27T20:29:55.821Z debug: 492a1bca-1c41-4a01-9104-543a2334c465: Clear selections
-butler-cw    | 2018-09-27T20:29:55.830Z debug: 492a1bca-1c41-4a01-9104-543a2334c465: Get list of all sheets
-butler-cw    | 2018-09-27T20:29:55.924Z info: App loaded: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5
-butler-cw    | 2018-09-27T20:29:55.989Z debug: 492a1bca-1c41-4a01-9104-543a2334c465: Retrieved list of sheets
-butler-cw    | 2018-09-27T20:29:55.993Z debug: dead6f4a-da0b-4b9c-82a2-3f94fdc72599: Retrieved list of sheets
-butler-cw    | 2018-09-27T20:29:56.003Z info: App 492a1bca-1c41-4a01-9104-543a2334c465: Cached 0 visualizations on 1 sheets.
-butler-cw    | 2018-09-27T20:29:56.006Z verbose: Heap used: 13,314,448
-butler-cw    | 2018-09-27T20:29:56.015Z debug: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5: Clear selections
-butler-cw    | 2018-09-27T20:29:56.019Z debug: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5: Get list of all sheets
-butler-cw    | 2018-09-27T20:29:56.113Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=kpi, object ID=KTsd, object=
-butler-cw    | 2018-09-27T20:29:56.170Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=linechart, object ID=BZtHyx, object=Average venue rating per state
-butler-cw    | 2018-09-27T20:29:56.171Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=filterpane, object ID=Ffzjwb, object=
-butler-cw    | 2018-09-27T20:29:56.172Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=filterpane, object ID=YJEpPT, object=
-butler-cw    | 2018-09-27T20:29:56.174Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=map, object ID=APdJrgp, object=
-butler-cw    | 2018-09-27T20:29:56.184Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=linechart, object ID=mTGdy, object=Average venue rating per state (events with at least 25 ratings)
-butler-cw    | 2018-09-27T20:29:56.213Z debug: Chart cached (app=dead6f4a-da0b-4b9c-82a2-3f94fdc72599, object type=barchart, object ID=bqLyd, object=RSVP Yes
-butler-cw    | 2018-09-27T20:29:56.225Z debug: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5: Retrieved list of sheets
+butler-cw    | 2020-07-17T05:59:38.769Z info: --------------------------------------
+butler-cw    | 2020-07-17T05:59:38.774Z info: Starting Butler CW.
+butler-cw    | 2020-07-17T05:59:38.774Z info: Log level is: info
+butler-cw    | 2020-07-17T05:59:38.774Z info: App version is: 2.3.0
+butler-cw    | 2020-07-17T05:59:38.775Z info: --------------------------------------
+butler-cw    | 2020-07-17T06:01:48.786Z verbose: MAIN: Starting Docker healthcheck server...
+butler-cw    | 2020-07-17T06:01:48.812Z info: Docker healthcheck server now listening on http://[::]:12398
+butler-cw    | 2020-07-17T06:01:50.810Z verbose: --------------------------------
+butler-cw    | 2020-07-17T06:01:50.812Z verbose: Iteration # 1, Uptime: 2 seconds, Heap used 12.43 MB of total heap 33.59 MB. Memory allocated to process: 62.17 MB.
+butler-cw    | 2020-07-17T06:01:50.813Z verbose: Starting loading of appid 87d03c47-72ad-4cd0-a751-78f14412d93c
+butler-cw    | (node:1) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
+butler-cw    | 2020-07-17T06:01:50.826Z verbose: Starting loading of appid 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e
+butler-cw    | 2020-07-17T06:01:51.145Z info: App loaded: 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e
+butler-cw    | 2020-07-17T06:01:51.390Z info: App loaded: 87d03c47-72ad-4cd0-a751-78f14412d93c
+butler-cw    | 2020-07-17T06:01:51.649Z info: App 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e: Cached 11 visualizations on 4 sheets.
+butler-cw    | 2020-07-17T06:01:51.824Z info: App 87d03c47-72ad-4cd0-a751-78f14412d93c: Cached 63 visualizations on 10 sheets.
+butler-cw    | 2020-07-17T06:02:00.394Z verbose: Docker healthcheck API endpoint called.
+butler-cw    | 2020-07-17T06:02:00.809Z verbose: Starting loading of appid 87d03c47-72ad-4cd0-a751-78f14412d93c
+butler-cw    | 2020-07-17T06:02:00.813Z verbose: --------------------------------
+butler-cw    | 2020-07-17T06:02:00.814Z verbose: Iteration # 2, Uptime: 12 seconds, Heap used 14.04 MB of total heap 15.84 MB. Memory allocated to process: 52.31 MB.
+butler-cw    | 2020-07-17T06:02:01.279Z info: App loaded: 87d03c47-72ad-4cd0-a751-78f14412d93c
+butler-cw    | 2020-07-17T06:02:01.632Z info: App 87d03c47-72ad-4cd0-a751-78f14412d93c: Cached 63 visualizations on 10 sheets.
+butler-cw    | 2020-07-17T06:02:10.793Z verbose: --------------------------------
+butler-cw    | 2020-07-17T06:02:10.794Z verbose: Iteration # 3, Uptime: 21 seconds, Heap used 13.81 MB of total heap 16.84 MB. Memory allocated to process: 52.96 MB.
+butler-cw    | 2020-07-17T06:02:12.522Z verbose: Docker healthcheck API endpoint called.
+butler-cw    | 2020-07-17T06:02:20.802Z verbose: --------------------------------
+butler-cw    | 2020-07-17T06:02:20.803Z verbose: Iteration # 4, Uptime: 31 seconds, Heap used 13.94 MB of total heap 16.84 MB. Memory allocated to process: 52.96 MB.
+butler-cw    | 2020-07-17T06:02:24.662Z verbose: Docker healthcheck API endpoint called.
 ...
 ...
 ```
 
-Setting the log level to info in the config file will reduce log output *a lot*.
+Warning: Setting the log level to debug in the config file will create **lots** of log output.
+
+Finally, let's take a look at what Docker tells us about the currently running containers:
+
+```
+➜  ~ docker ps
+CONTAINER ID        IMAGE                                 COMMAND                  CREATED             STATUS                    PORTS                    NAMES
+b6149eef6054        ptarmiganlabs/butler-cw:latest        "docker-entrypoint.s…"   5 minutes ago       Up 15 seconds (healthy)                            butler-cw
+05941501842d        ptarmiganlabs/butler-sos:latest       "docker-entrypoint.s…"   3 weeks ago         Up 2 days (healthy)                                butler-sos
+5255238cdb8b        linuxserver/healthchecks              "/init"                  4 months ago        Up 2 days                 0.0.0.0:8000->8000/tcp   qliksense-task-monitor
+9467c8983eb9        postgres:9.6                          "docker-entrypoint.s…"   4 months ago        Up 2 days                 0.0.0.0:5434->5432/tcp   qliksense-task-monitor-postgres
+➜  ~
+```
+
+Great, Butler CW is running and reporting a healthy status. All good!
 
 ### Storing configuration in Git
 
@@ -335,7 +331,7 @@ While a good idea, this is a slightly complex topic.
 
 Different revision control tools and services (Github, BitBucket etc) work in slightly different ways when it comes to allowing access to files.
 
-In public Github (GH), it is for example possible to read files in public repositories within being logged into Github.
+In public Github (GH), it is for example possible to read files in public repositories without being logged into Github.
 
 In Github Enterprise (GHE) on the other hand, each company can configure whether their own employees should be able to read files from GHE repositories without being logged into GHE, or whether such access requires the user to be logged into GHE.
 

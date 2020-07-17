@@ -12,6 +12,21 @@ heartbeat:
   remoteURL: http://my.monitoring.server/some/path/
   frequency: every 1 hour         # https://bunkat.github.io/later/parsers.html
 
+# Docker health checks are used when running Butler CW as a Docker container. 
+# The Docker engine will call the container's health check REST endpoint with a set interval to determine
+# whether the container is alive/well or not.
+# If you are not running Butler CW in Docker you can safely disable this feature. 
+dockerHealthCheck:
+  enabled: false    # Control whether a REST endpoint will be set up to serve Docker health check messages
+  port: 12398      # Port the Docker health check service runs on (if enabled)
+
+# Uptime monitor
+# When enabled, Butler CW will write info on uptime and used memory to log files
+uptimeMonitor:
+  enabled: true                   # Should uptime messages be written to the console and log files?
+  frequency: every 10 seconds     # https://bunkat.github.io/later/parsers.html
+  logLevel: verbose               # Starting at what log level should uptime messages be shown?
+
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
 # remove or comment out if running on desktop
 clientCertPath: /path/to/client/cert/client.pem

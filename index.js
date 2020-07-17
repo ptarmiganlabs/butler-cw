@@ -6,13 +6,14 @@ const fs = require('fs');
 var config = require('config');
 var yaml = require('js-yaml');
 var later = require('later');
-var Promise = require('bluebird');
+// var Promise = require('bluebird');
 var GitHubApi = require('@octokit/rest');
 var winston = require('winston');
 require('winston-daily-rotate-file');
 var restify = require('restify');
 const path = require('path');
-heartbeat = require('./heartbeat.js');
+const heartbeat = require('./heartbeat.js');
+const serviceUptime = require('./service_uptime');
 
 // const corsMiddleware = require('restify-cors-middleware');
 // var errors = require('restify-errors');
@@ -74,85 +75,62 @@ logger.info('--------------------------------------');
 const schema = require(`enigma.js/schemas/${config.get('qixVersion')}.json`);
 
 // Read certificates
-const rootCert = config.has('clientCertCAPath') ? fs.readFileSync(config.get('clientCertCAPath')) : null;
+const rootCert = config.has('clientCertCAPath')
+    ? fs.readFileSync(config.get('clientCertCAPath'))
+    : null;
 const client = config.has('clientCertPath') ? fs.readFileSync(config.get('clientCertPath')) : null;
-const client_key = config.has('clientCertKeyPath') ? fs.readFileSync(config.get('clientCertKeyPath')) : null;
+const client_key = config.has('clientCertKeyPath')
+    ? fs.readFileSync(config.get('clientCertKeyPath'))
+    : null;
 
 // Formatter for numbers
 const formatter = new Intl.NumberFormat('en-US');
 
-// Set up Docker healthcheck server
-// Create restServer object
-var restServerDockerHealth = restify.createServer({
-    name: 'Docker healthcheck for Butler App Duplicator',
-    version: appVersion,
-});
+// Start Docker healthcheck REST server on port set in config file
+if (config.get('dockerHealthCheck.enabled') == true) {
+    logger.verbose('MAIN: Starting Docker healthcheck server...');
 
-// Enable parsing of http parameters
-restServerDockerHealth.use(restify.plugins.queryParser());
+    // Set up Docker healthcheck server
+    // Create restServer object
+    var restServerDockerHealth = restify.createServer({
+        name: 'Docker healthcheck for Butler App Duplicator',
+        version: appVersion,
+    });
 
-restServerDockerHealth.get(
-    {
-        path: '/',
-        flags: 'i',
-    },
-    (req, res, next) => {
-        logger.verbose(`Docker healthcheck API endpoint called.`);
+    // Enable parsing of http parameters
+    restServerDockerHealth.use(restify.plugins.queryParser());
 
-        res.send(0);
-        next();
-    },
-);
+    restServerDockerHealth.get(
+        {
+            path: '/',
+            flags: 'i',
+        },
+        (req, res, next) => {
+            logger.verbose(`Docker healthcheck API endpoint called.`);
 
-// Start Docker healthcheck REST server on port 12398
-restServerDockerHealth.listen(12398, function () {
-    logger.info(`Docker healthcheck server now listening on ${restServerDockerHealth.url}`);
-});
-
-// Log uptime to console
-Number.prototype.toTime = function (isSec) {
-    var ms = isSec ? this * 1e3 : this,
-        lm = ~(4 * !!isSec),
-        /* limit fraction */
-        fmt = new Date(ms).toISOString().slice(11, lm);
-
-    if (ms >= 8.64e7) {
-        /* >= 24 hours */
-        var parts = fmt.split(/:(?=\d{2}:)/);
-        parts[0] -= -24 * ((ms / 8.64e7) | 0);
-        return parts.join(':');
-    }
-
-    return fmt;
-};
-
-var startTime = Date.now();
-var startIterations = 0;
-
-var uptimeCheck = later.setInterval(function () {
-    startIterations++;
-    let uptime = Date.now() - startTime;
-    logger.log('debug', '--------------------------------');
-    logger.log(
-        'debug',
-        'Iteration # ' +
-            formatter.format(startIterations) +
-            ', Uptime: ' +
-            formatter.format(uptime / 1000) +
-            ' seconds',
-    );
-    logger.log(
-        'debug',
-        'Iteration # ' + formatter.format(startIterations) + ', Uptime: ' + uptime.toTime(),
+            res.send(0);
+            next();
+        },
     );
 
-    logger.log('debug', '--------------------------------');
-}, later.parse.text('every 5 seconds'));
+    // Start Docker healthcheck REST server on port set in config file
+    restServerDockerHealth.listen(config.get('dockerHealthCheck.port'), function () {
+        logger.info(`Docker healthcheck server now listening on ${restServerDockerHealth.url}`);
+    });
+}
+
 
 // Set up heartbeats, if enabled in the config file
 if (config.get('heartbeat.enabled') == true) {
     heartbeat.setupHeartbeatTimer(config, logger);
 }
+
+// Set up uptime logging
+if (config.get('uptimeMonitor.enabled') == true) {
+    serviceUptime.serviceUptimeStart(config, logger);
+}
+
+
 
 // Should per-app config data be read from disk file or GitHub?
 var appConfigYaml = '';
@@ -361,10 +339,10 @@ async function loadAppIntoCache(appConfig) {
                 'info',
                 `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`,
             );
-            logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
+            // logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
         });
     } else {
         app.session.close();
-        logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
+        // logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
     }
 }

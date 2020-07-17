@@ -44,7 +44,7 @@ steps:
     password:
       from_secret: dockerhub_password
     repo: ptarmiganlabs/butler-cw
-    dockerfile: src/Dockerfile.arm64
+    dockerfile: Dockerfile.arm64
     context: 
     auto_tag: true
     auto_tag_suffix: linux-arm64
@@ -76,7 +76,7 @@ steps:
     password:
       from_secret: dockerhub_password
     repo: ptarmiganlabs/butler-cw
-    dockerfile: src/Dockerfile.arm
+    dockerfile: Dockerfile.arm
     context: 
     auto_tag: true
     auto_tag_suffix: linux-arm
@@ -102,7 +102,7 @@ steps:
   settings:
     auto_tag: true
     ignore_missing: true
-    spec: src/docker/manifest.tmpl
+    spec: docker/manifest.tmpl
     username:
       from_secret: dockerhub_username
     password:

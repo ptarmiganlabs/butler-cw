@@ -1,5 +1,32 @@
 # Change log
 
+## 2.3.1
+
+1. Updated dependencies and libraries.
+
+## 2.3.0
+
+Heart beats, uptime logging & Arm support.
+
+Starting with this release, Docker images for Arm64 and Arm7 will be built and published to Docker Hub automatically.
+This release also brings configurable Docker health checking, as well as uptime messages that tell you how Butler CW itself is doing.
+
+Change list:
+
+1. Multi-architecture support in CI/CD. I.e. build Docker images for Arm CPUs.
+2. Node.js has built-in promises these days, no need to use 3rd party libraries for this.
+3. Make it possible to turn the Docker health check on/off, as well as configure its port.
+4. Add uptime monitor that logs how long Butler CW has been running, as well as how much memory it uses. 
+
+## 2.2.1
+
+1. Better handling of Qlik Sense certificates, avoiding troubles in certain cases.
+
+## 2.2.0
+
+1. Added **hearbeats**. This makes it possible to monitor Butler CW from monitoring tools such as [healthchecks.io](healthchecks.io).
+2. Documentation updates.
+
 ## 2.1.1
 
 1. Minor: Fix incorrect network name in docker-compose file.

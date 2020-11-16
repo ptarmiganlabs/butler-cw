@@ -1,9 +1,8 @@
-# extends: google
 parserOptions:
-  # ecmaVersion: 9
-  es2020: true
+  ecmaVersion: 2020
 env:
   node: true
+  es6: true
 extends: 'eslint:recommended'
 rules:
   indent:
@@ -25,4 +24,3 @@ rules:
     - warn
   no-unused-vars:
     - warn
-    

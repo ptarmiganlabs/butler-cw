@@ -1,5 +1,9 @@
 # Change log
 
+## 2.3.2
+
+- Dependencies updated to stay sharp and secure.
+
 ## 2.3.1
 
 1. Updated dependencies and libraries.

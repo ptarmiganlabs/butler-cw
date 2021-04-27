@@ -184,7 +184,7 @@ try {
 function loadAppConfig(appConfig) {
     // Load app config doc, or throw exception on error
     try {
-        var appConfigDoc = yaml.safeLoad(appConfigYaml);
+        var appConfigDoc = yaml.load(appConfigYaml);
         logger.log(
             'debug',
             'Loading app config using following config:\n ' + JSON.stringify(appConfigDoc, null, 2),

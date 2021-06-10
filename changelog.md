@@ -1,5 +1,10 @@
 # Change log
 
+## 2.3.3
+
+- Dependencies updated to stay sharp and secure.
+- Switched to using GitHub Actions for building linux/amd64 Docker images.
+
 ## 2.3.2
 
 - Dependencies updated to stay sharp and secure.

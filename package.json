@@ -39,6 +39,6 @@
     "restify": "^8.5.1",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5",
-    "ws": "^7.4.6"
+    "ws": "^8.0.0"
   }
 }

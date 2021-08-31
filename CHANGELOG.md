@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.3.5](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.4...v2.3.5) (2021-08-31)
+
+
+### Bug Fixes
+
+* Docker image debugging ([3a0a1b6](https://www.github.com/ptarmiganlabs/butler-cw/commit/3a0a1b61f3b8c447bc9a318b9ebcf0b5d283ae58))
+
 ### [2.3.4](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.3...v2.3.4) (2021-08-31)
 
 

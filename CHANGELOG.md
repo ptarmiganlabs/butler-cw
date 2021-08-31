@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.3.12](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.11...v2.3.12) (2021-08-31)
+
+
+### Bug Fixes
+
+* Fix multi-arch Docker image creation ([#42](https://www.github.com/ptarmiganlabs/butler-cw/issues/42)) ([4182d89](https://www.github.com/ptarmiganlabs/butler-cw/commit/4182d8900058e2b78f100ca074c4c6c9c6f4c152))
+
 ### [2.3.11](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.10...v2.3.11) (2021-08-31)
 
 

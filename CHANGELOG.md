@@ -1,5 +1,14 @@
 # Changelog
 
+### [2.3.10](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.9...v2.3.10) (2021-08-31)
+
+
+### Bug Fixes
+
+* debug img builds ([8f413b5](https://www.github.com/ptarmiganlabs/butler-cw/commit/8f413b5919fa2c9763ac99d623a7c0135314a5f0))
+* debug img builds ([#73](https://www.github.com/ptarmiganlabs/butler-cw/issues/73)) ([fa172ce](https://www.github.com/ptarmiganlabs/butler-cw/commit/fa172ceb09816d8a66cc89ff9b37f12bc03536e1))
+* img builds ([9b7d952](https://www.github.com/ptarmiganlabs/butler-cw/commit/9b7d952dcaededf315d11c36013225cb4dabf149))
+
 ### [2.3.9](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.8...v2.3.9) (2021-08-31)
 
 

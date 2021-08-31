@@ -1,5 +1,5 @@
 # Use Node 14 LTS
-FROM node:14-stretch
+FROM node:16-stretch
 
 # Add some information about the image
 LABEL maintainer="Göran Sander mountaindude@ptarmiganlabs.com"

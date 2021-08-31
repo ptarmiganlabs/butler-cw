@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.3.7](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.6...v2.3.7) (2021-08-31)
+
+
+### Bug Fixes
+
+* Docker img builds ([436d184](https://www.github.com/ptarmiganlabs/butler-cw/commit/436d184fc61100060b24e40d1b2aaf74e2587a7d))
+
 ### [2.3.6](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.5...v2.3.6) (2021-08-31)
 
 

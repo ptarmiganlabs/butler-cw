@@ -12,3 +12,4 @@ jobs:
           release-type: node
           package-name: butler-cw
           default-branch: master
+

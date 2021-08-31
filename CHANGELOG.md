@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.3.11](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.10...v2.3.11) (2021-08-31)
+
+
+### Bug Fixes
+
+* Cleanup of Docker image building ([8f36616](https://www.github.com/ptarmiganlabs/butler-cw/commit/8f36616ecd7c013cb72f6216c26493272d59df14))
+
 ### [2.3.10](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.9...v2.3.10) (2021-08-31)
 
 

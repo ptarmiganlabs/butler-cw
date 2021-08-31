@@ -2,7 +2,10 @@ name: ci
 
 on:
   release:
-    types: [published]
+    types: 
+      - released
+      - published
+
   # push:
   #   branches:
   #     - 'master'

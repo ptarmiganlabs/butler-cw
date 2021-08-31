@@ -13,7 +13,6 @@ on:
     # Publish semver tags as releases.
     tags: 
       - 'v*.*.*'
-      - '*.*.*'
   # push:
   #   branches: [ master ]
   #   # Publish semver tags as releases.

@@ -8,18 +8,8 @@ name: Build Docker image CI
 
 on:
   release:
-    types: [published]
-  # push:
-  #   branches: 
-  #     - 'master'
-  #   # Publish semver tags as releases.
-  #   tags: 
-  #     - 'v*.*.*'
-  #     - '*.*.*'
-  # push:
-  #   branches: [ master ]
-  #   # Publish semver tags as releases.
-  #   tags: [ 'v*.*.*' ]    
+    types:
+      - published
 
 jobs:
   build-image:

@@ -1,6 +1,6 @@
 # A cache warming tool for Qlik Sense
 
-[![Build Status](https://cloud.drone.io/api/badges/ptarmiganlabs/butler-cw/status.svg)](https://cloud.drone.io/ptarmiganlabs/butler-cw)
+[![Build Docker image](https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml/badge.svg)](https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/285300f789099a204af0/maintainability)](https://codeclimate.com/github/mountaindude/butler-cw/maintainability)
 
 ![Butler CW](img/butler_cw.png)

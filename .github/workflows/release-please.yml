@@ -10,6 +10,6 @@ jobs:
     steps:
       - uses: GoogleCloudPlatform/release-please-action@v2.29.2
         with:
-          token: '{{ secrets.PAT }}'
+          token: ${{ secrets.PAT }}
           release-type: node
           package-name: butler-cw

@@ -8,16 +8,19 @@ name: Build Docker image CI
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - 'master'
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: 
+      - 'v*.*.*'
+      - '*.*.*'
   # push:
   #   branches: [ master ]
   #   # Publish semver tags as releases.
   #   tags: [ 'v*.*.*' ]    
 
 jobs:
-  build:
+  build-image:
 
     runs-on: ubuntu-latest
     permissions:

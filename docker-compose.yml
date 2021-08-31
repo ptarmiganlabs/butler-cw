@@ -2,7 +2,7 @@
 version: '3.3'
 services:
   butler-cw:
-    image: ptarmiganlabs/butler-cw:2.3.10
+    image: ptarmiganlabs/butler-cw:2.3.12
     restart: always
     container_name: butler-cw
     volumes:

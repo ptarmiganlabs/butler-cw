@@ -137,7 +137,7 @@ var appConfigYaml = '';
 
 try {
     if (config.get('appConfig.configSource') == 'disk') {
-        appConfigYaml = fs.readFileSync('./config/apps.yaml', 'utf8');
+        appConfigYaml = fs.readFileSync(config.get('appConfig.diskConfigFile'), 'utf8');
         loadAppConfig(appConfigYaml);
     } else if (config.get('appConfig.configSource') == 'github') {
         var github = new GitHubApi({

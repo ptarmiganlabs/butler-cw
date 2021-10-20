@@ -184,8 +184,9 @@ async function mainScript() {
     globals.logger.info('--------------------------------------');
 
     // Read QIX schema
-    // eslint-disable-next-line import/no-dynamic-require
-    schema = require('enigma.js/schemas/' + globals.config.get('qixVersion') + '.json');
+    const enigmaPath = `enigma.js/schemas/${globals.config.get('qixVersion')}.json`;
+    // eslint-disable-next-line global-require
+    schema = require(enigmaPath);
 
     // Read certificates
     rootCert = globals.config.has('clientCertCAPath')
@@ -237,7 +238,7 @@ async function mainScript() {
 
     try {
         if (globals.config.get('appConfig.configSource') === 'disk') {
-            appConfigYaml = fs.readFileSync('./config/apps.yaml', 'utf8');
+            appConfigYaml = fs.readFileSync(globals.config.get('appConfig.diskConfigFile'), 'utf8');
             loadAppConfig(appConfigYaml);
         } else if (globals.config.get('appConfig.configSource') === 'github') {
             const github = new GitHubApi({
@@ -278,7 +279,7 @@ async function mainScript() {
                 });
         }
     } catch (e) {
-        globals.logger.log('error', 'Error while reading app config data: ' + e);
+        globals.logger.log('error', `Error while reading app config data: ${e}`);
     }
 }
 

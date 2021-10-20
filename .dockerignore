@@ -1,8 +1,13 @@
 config/*
 img/*
+img
 node_modules
+.vscode
 .vscode/*
 .github/*
+.github
+.git/*
+.git
 .dockerignore
 .gitignore
 .codeclimate.yml
@@ -11,9 +16,10 @@ node_modules
 .prettierignore
 .prettierrc
 .snyk
+.DS_Store
+.release-please-manifest.json
+release-please-config.json
 docker-compose.yml
 Dockerfile
-Dockerfile.arm
-Dockerfile.arm64
 package-lock.json
 renovate.json

@@ -14,7 +14,6 @@ RUN npm install
 # Copy app's source files
 COPY . .
 
-
 # Create and use non-root user 
 RUN groupadd -r nodejs \
    && useradd -m -r -g nodejs nodejs
@@ -22,7 +21,6 @@ RUN groupadd -r nodejs \
 USER nodejs
 
 # Set up Docker healthcheck
-HEALTHCHECK --interval=12s --timeout=12s --start-period=30s CMD ["node", "healthcheck.js"]
+HEALTHCHECK --interval=12s --timeout=12s --start-period=30s CMD ["node", "docker-healthcheck.js"]
 
 CMD ["node", "index.js"]
-

@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.0.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.0.0...butler-cw-v3.0.1) (2021-10-20)
+
+
+### Miscellaneous
+
+* **deps:** Update dependencies ([d869795](https://www.github.com/ptarmiganlabs/butler-cw/commit/d86979541e98ecdf8cb63fe12aa035ec2d05913c))
+
 ## 3.0.0 (2021-10-20)
 
 

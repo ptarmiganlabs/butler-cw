@@ -275,7 +275,7 @@ Creating butler-cw ... done
 Attaching to butler-cw
 butler-cw    | 2021-10-20T12:23:15.419Z info: --------------------------------------
 butler-cw    | 2021-10-20T12:23:15.421Z info: Starting Butler CW.
-butler-cw    | 2021-10-20T12:23:15.422Z info: Log level is: silly
+butler-cw    | 2021-10-20T12:23:15.422Z info: Log level is: verbose
 butler-cw    | 2021-10-20T12:23:15.422Z info: App version is: 3.1.0
 butler-cw    | 2021-10-20T12:23:15.423Z info: --------------------------------------
 butler-cw    | 2021-10-20T12:23:15.430Z verbose: MAIN: Starting Docker healthcheck server...

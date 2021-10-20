@@ -10,10 +10,10 @@ node_modules
 .jshintrc
 .prettierignore
 .prettierrc
+.snyk
 docker-compose.yml
 Dockerfile
 Dockerfile.arm
 Dockerfile.arm64
 package-lock.json
 renovate.json
-

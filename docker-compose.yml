@@ -2,12 +2,11 @@
 version: '3.3'
 services:
   butler-cw:
-    image: ptarmiganlabs/butler-cw:2.3.12
+    image: ptarmiganlabs/butler-cw:latest
     restart: always
     container_name: butler-cw
     volumes:
       # Make config file accessible outside of container
-      - "/Users/goran/code/secret/pro2win1-nopwd:/nodeapp/config/certificate"
       - "./config:/nodeapp/config"
       - "./log:/nodeapp/log"
     environment:

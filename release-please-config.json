@@ -1,6 +1,4 @@
 {
-  "bootstrap-sha": "5dfd7319cb6cbbb36b6018e5a97cba0a490457e0",
-  "release-as": "3.0.0",
   "release-type": "node",
   "draft": true,
   "changelog-sections": [

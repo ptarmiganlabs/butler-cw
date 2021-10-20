@@ -9,12 +9,14 @@ node_modules
 .git/*
 .git
 .dockerignore
+.editorconfig
 .gitignore
 .codeclimate.yml
 .eslintrc.yml
 .jshintrc
 .prettierignore
 .prettierrc
+.prettierrc.yaml
 .snyk
 .DS_Store
 .release-please-manifest.json

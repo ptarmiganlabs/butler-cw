@@ -1,5 +1,23 @@
 # Changelog
 
+## 3.0.0 (2021-10-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Align release process to Butler tools
+
+### Miscellaneous
+
+* **deps:** update googlecloudplatform/release-please-action action to v2.33.0 ([b547025](https://www.github.com/ptarmiganlabs/butler-cw/commit/b54702505e86b5554e555ad11ca0626acb5eb528))
+* **deps:** update ptarmiganlabs/butler-cw docker tag to v2.3.12 ([d6a7452](https://www.github.com/ptarmiganlabs/butler-cw/commit/d6a745272c746379ac9714b8b5756d39e7319b93))
+* **deps:** update ptarmiganlabs/butler-cw docker tag to v2.3.12 ([50d6139](https://www.github.com/ptarmiganlabs/butler-cw/commit/50d61395a5da1f240bd583d8aac97f8f51497eda))
+
+
+### Refactoring
+
+* Align release process to Butler tools ([a95a537](https://www.github.com/ptarmiganlabs/butler-cw/commit/a95a537783276cb64e7782c399167b16b8dc764c))
+
 ### [2.3.12](https://www.github.com/ptarmiganlabs/butler-cw/compare/v2.3.11...v2.3.12) (2021-08-31)
 
 

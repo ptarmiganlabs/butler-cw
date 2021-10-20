@@ -1,5 +1,17 @@
 # Changelog
 
+### [3.1.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.1.0...butler-cw-v3.1.1) (2021-10-20)
+
+
+### Bug Fixes
+
+* Respect apps to load config settting ([53545e6](https://www.github.com/ptarmiganlabs/butler-cw/commit/53545e6ee1d53c44cf12d9291315b8ff23bce055))
+
+
+### Documentation
+
+* Update docs wrt 3.1 ([6b2be29](https://www.github.com/ptarmiganlabs/butler-cw/commit/6b2be29bfafc7a0d173f3fc8b7f290ebaf2c8266))
+
 ## [3.1.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.0.1...butler-cw-v3.1.0) (2021-10-20)
 
 

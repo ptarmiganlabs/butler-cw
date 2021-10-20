@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.1.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.0.1...butler-cw-v3.1.0) (2021-10-20)
+
+
+### Features
+
+* Refactor Docker healtcheck ([4ed8a23](https://www.github.com/ptarmiganlabs/butler-cw/commit/4ed8a23acf3bdceb01e10919b6540e2d7db9a374))
+
+
+### Refactoring
+
+* Align code formatting with Butler tools ([ec4548a](https://www.github.com/ptarmiganlabs/butler-cw/commit/ec4548a455b19dad21e301bb45ea37c7c24ad976))
+
 ### [3.0.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.0.0...butler-cw-v3.0.1) (2021-10-20)
 
 

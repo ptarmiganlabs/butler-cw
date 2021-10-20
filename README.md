@@ -9,7 +9,7 @@ CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loa
 
 ## Background
 
-A few years ago Qlik Sense Enterprise (the Windows Server version, which was the only one available at the time) moved to something called "[shared persistence](http://help.qlik.com/en-US/sense/3.2/Subsystems/Installation/Content/InstallationLicensing/Install-Shared.htm)". It simply means that the Sense apps are stored on a central file server, rather than on each individual server in the Sense environment.  
+Many years ago Qlik Sense Enterprise (the Windows Server version, which was the only one available at the time) moved to something called "[shared persistence](http://help.qlik.com/en-US/sense/3.2/Subsystems/Installation/Content/InstallationLicensing/Install-Shared.htm)". It simply means that the Sense apps are stored on a central file server, rather than on each individual server in the Sense environment.  
 Shared persistence is today the only supported storage model for Qlik Sense Enterprise on Windows (QSEoW).
 
 The upside of shared persistence is that there is a single version of each app - the one stored on the central file server.
@@ -54,9 +54,9 @@ This file contains sensitive information about where to find the Sense server ce
 
 Basically the same as for any app in the Butler family:
 
-1. Make sure you have a recent version of [Node.js](https://nodejs.org) installed. Node 12.16.0 was used during development of the most recent Butler CW version.
-2. [Clone the GitHub repository](https://github.com/ptarmiganlabs/butler-cw.git) to local disk, or download and extract the [ZIP:ed repo](https://github.com/ptarmiganlabs/butler-cw/archive/master.zip) from GitHub.
-3. From within the directory where you placed the Butler CW files, run
+1. Make sure you have a recent version of [Node.js](https://nodejs.org) installed. The latest LTS version is a good choice.
+2. Grab the latest release from the [release page](https://github.com/ptarmiganlabs/butler-cw/releases). Extract it to a suitable place on your Windows/Linux/Mac computer. A place like `d:\tools\butler-cw` could make sense on a Windows Server with a system `c:` drive and a `d:` for non-system applications.
+3. From within the directory where you placed the Butler CW files, run (this will download and install all dependencies that Butler CW uses)
 
 	```
 	npm i
@@ -67,8 +67,8 @@ Basically the same as for any app in the Butler family:
 6. Edit `./config/apps_config.yaml`, specifying when Sense apps should be loaded into servers. The frequency field in this config file is quite flexible, you can use any format listed [here](https://bunkat.github.io/laterparsers.htm).  
 This file can be named anything (e.g. abc.yaml), as long as it's name is also specified in the production.yaml file.
 
-The `production.yaml` file can also be named anything, as long as it matches the value of the NODE_ENV environment variable.  
-For example, if the config file is called `production.yaml`, the NODE_ENV environment variable should be set to 'production':
+The `production.yaml` file can also be named anything, as long as it matches the value of the `NODE_ENV` environment variable.  
+For example, if the config file is called `production.yaml`, the `NODE_ENV` environment variable should be set to 'production':
 
 Windows: `set NODE_ENV=production`  
 Linux: `export NODE_ENV=production`
@@ -86,7 +86,7 @@ This is the preferred way of running Butler CW:
 * Benefit from the extremely comprehensive tools ecosystem (monitoring, deployment etc) that is available for Docker.
 * Updating Butler CW to the latest version is as easy as stopping the container, then doing a "docker pull ptarmiganlabs/butler:latest", and finally starting the container again.
 
-Installing and getting started with Butler CW in Docker can look something like this:
+Installing and getting started with Butler CW in Docker can look something like this when working on MacOS. Windows and Linux of course looks slightly different:
 
 Create a directory for Butler CW. Config files and logs will be stored here.
 
@@ -233,7 +233,6 @@ services:
     container_name: butler-cw
     volumes:
       # Make config file accessible outside of container
-      - "/path/to/qliksense/exported/certificates:/nodeapp/config/certificate"
       - "./config:/nodeapp/config"
       - "./log:/nodeapp/log"
     environment:
@@ -257,54 +256,43 @@ Ok, all good. Let's start Butler CW using docker-compose:
 
 ```bash
 proton:butler-cw-docker goran$ docker-compose up
+Creating network "butler-cw-docker_butler-cw" with driver "bridge"
 Pulling butler-cw (ptarmiganlabs/butler-cw:latest)...
-linux-amd64: Pulling from ptarmiganlabs/butler-cw
-81fc19181915: Already exists
-ee49ee6a23d1: Already exists
-828510924538: Already exists
-a8f58c4fcca0: Already exists
-33699d7df21e: Already exists
-923705ffa8f8: Already exists
-c214b6cd5b8c: Pull complete
-4c73d8285dba: Pull complete
-1c58ef740d94: Pull complete
-e55870d5ab63: Pull complete
-5a60a14b0157: Pull complete
-127adc529fbb: Pull complete
-f3a2df8ab2d4: Pull complete
-1fb95730c902: Pull complete
-Digest: sha256:582d3bbf50b78d2c444ba529c27abfda2bc00cd9e403a149a1cf55f4dc578e0c
-Status: Downloaded newer image for ptarmiganlabs/butler-cw:linux-amd64
-Recreating butler-cw ... done
+latest: Pulling from ptarmiganlabs/butler-cw
+7d63c13d9b9b: Already exists
+bb262aff53d8: Already exists
+24467fa1084c: Already exists
+d318401bbcfd: Already exists
+fef5c41ac380: Already exists
+355f82e6ba49: Pull complete
+58031546d982: Pull complete
+49882da52baa: Pull complete
+990f8e00f68e: Pull complete
+b33e3e1b2464: Pull complete
+Digest: sha256:064508343e754fd2a37e0222e37d016309ba4a96c73c519cac11db5f1bb784ee
+Status: Downloaded newer image for ptarmiganlabs/butler-cw:latest
+Creating butler-cw ... done
 Attaching to butler-cw
-butler-cw    | 2020-07-17T05:59:38.769Z info: --------------------------------------
-butler-cw    | 2020-07-17T05:59:38.774Z info: Starting Butler CW.
-butler-cw    | 2020-07-17T05:59:38.774Z info: Log level is: info
-butler-cw    | 2020-07-17T05:59:38.774Z info: App version is: 2.3.0
-butler-cw    | 2020-07-17T05:59:38.775Z info: --------------------------------------
-butler-cw    | 2020-07-17T06:01:48.786Z verbose: MAIN: Starting Docker healthcheck server...
-butler-cw    | 2020-07-17T06:01:48.812Z info: Docker healthcheck server now listening on http://[::]:12398
-butler-cw    | 2020-07-17T06:01:50.810Z verbose: --------------------------------
-butler-cw    | 2020-07-17T06:01:50.812Z verbose: Iteration # 1, Uptime: 2 seconds, Heap used 12.43 MB of total heap 33.59 MB. Memory allocated to process: 62.17 MB.
-butler-cw    | 2020-07-17T06:01:50.813Z verbose: Starting loading of appid 87d03c47-72ad-4cd0-a751-78f14412d93c
-butler-cw    | (node:1) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
-butler-cw    | 2020-07-17T06:01:50.826Z verbose: Starting loading of appid 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e
-butler-cw    | 2020-07-17T06:01:51.145Z info: App loaded: 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e
-butler-cw    | 2020-07-17T06:01:51.390Z info: App loaded: 87d03c47-72ad-4cd0-a751-78f14412d93c
-butler-cw    | 2020-07-17T06:01:51.649Z info: App 3a6c9a53-cb8d-42f3-a8ee-c083c1f8ed8e: Cached 11 visualizations on 4 sheets.
-butler-cw    | 2020-07-17T06:01:51.824Z info: App 87d03c47-72ad-4cd0-a751-78f14412d93c: Cached 63 visualizations on 10 sheets.
-butler-cw    | 2020-07-17T06:02:00.394Z verbose: Docker healthcheck API endpoint called.
-butler-cw    | 2020-07-17T06:02:00.809Z verbose: Starting loading of appid 87d03c47-72ad-4cd0-a751-78f14412d93c
-butler-cw    | 2020-07-17T06:02:00.813Z verbose: --------------------------------
-butler-cw    | 2020-07-17T06:02:00.814Z verbose: Iteration # 2, Uptime: 12 seconds, Heap used 14.04 MB of total heap 15.84 MB. Memory allocated to process: 52.31 MB.
-butler-cw    | 2020-07-17T06:02:01.279Z info: App loaded: 87d03c47-72ad-4cd0-a751-78f14412d93c
-butler-cw    | 2020-07-17T06:02:01.632Z info: App 87d03c47-72ad-4cd0-a751-78f14412d93c: Cached 63 visualizations on 10 sheets.
-butler-cw    | 2020-07-17T06:02:10.793Z verbose: --------------------------------
-butler-cw    | 2020-07-17T06:02:10.794Z verbose: Iteration # 3, Uptime: 21 seconds, Heap used 13.81 MB of total heap 16.84 MB. Memory allocated to process: 52.96 MB.
-butler-cw    | 2020-07-17T06:02:12.522Z verbose: Docker healthcheck API endpoint called.
-butler-cw    | 2020-07-17T06:02:20.802Z verbose: --------------------------------
-butler-cw    | 2020-07-17T06:02:20.803Z verbose: Iteration # 4, Uptime: 31 seconds, Heap used 13.94 MB of total heap 16.84 MB. Memory allocated to process: 52.96 MB.
-butler-cw    | 2020-07-17T06:02:24.662Z verbose: Docker healthcheck API endpoint called.
+butler-cw    | 2021-10-20T12:23:15.419Z info: --------------------------------------
+butler-cw    | 2021-10-20T12:23:15.421Z info: Starting Butler CW.
+butler-cw    | 2021-10-20T12:23:15.422Z info: Log level is: silly
+butler-cw    | 2021-10-20T12:23:15.422Z info: App version is: 3.1.0
+butler-cw    | 2021-10-20T12:23:15.423Z info: --------------------------------------
+butler-cw    | 2021-10-20T12:23:15.430Z verbose: MAIN: Starting Docker healthcheck server...
+butler-cw    | 2021-10-20T12:23:15.449Z info: MAIN: Started Docker healthcheck server on port 12398.
+butler-cw    | 2021-10-20T12:23:20.491Z verbose: Starting loading of appid e28f9c40-6138-42f4-81c3-1d61860baa27
+butler-cw    | 2021-10-20T12:23:20.502Z verbose: Starting loading of appid c840670c-7178-4a5e-8409-ba2da69127e2
+butler-cw    | 2021-10-20T12:23:20.750Z info: App loaded: e28f9c40-6138-42f4-81c3-1d61860baa27
+butler-cw    | 2021-10-20T12:23:20.766Z info: App e28f9c40-6138-42f4-81c3-1d61860baa27: Cached 0 visualizations on 0 sheets.
+butler-cw    | 2021-10-20T12:23:20.792Z info: App loaded: c840670c-7178-4a5e-8409-ba2da69127e2
+butler-cw    | 2021-10-20T12:23:21.424Z info: App c840670c-7178-4a5e-8409-ba2da69127e2: Cached 13 visualizations on 2 sheets.
+butler-cw    | 2021-10-20T12:23:30.486Z verbose: --------------------------------
+butler-cw    | 2021-10-20T12:23:30.488Z verbose: Iteration # 1, Uptime: 15 seconds, Heap used 12.88 MB of total heap 15.76 MB. Memory allocated to process: 63.12 MB.
+butler-cw    | 2021-10-20T12:23:30.490Z verbose: Starting loading of appid e28f9c40-6138-42f4-81c3-1d61860baa27
+butler-cw    | 2021-10-20T12:23:30.637Z info: App loaded: e28f9c40-6138-42f4-81c3-1d61860baa27
+butler-cw    | 2021-10-20T12:23:30.649Z info: App e28f9c40-6138-42f4-81c3-1d61860baa27: Cached 0 visualizations on 0 sheets.
+butler-cw    | 2021-10-20T12:23:45.468Z verbose: --------------------------------
+butler-cw    | 2021-10-20T12:23:45.470Z verbose: Iteration # 2, Uptime: 29 seconds, Heap used 13.45 MB of total heap 16.01 MB. Memory allocated to process: 63.77 MB.
 ...
 ...
 ```
@@ -315,11 +303,8 @@ Finally, let's take a look at what Docker tells us about the currently running c
 
 ```
 ➜  ~ docker ps
-CONTAINER ID        IMAGE                                 COMMAND                  CREATED             STATUS                    PORTS                    NAMES
-b6149eef6054        ptarmiganlabs/butler-cw:latest        "docker-entrypoint.s…"   5 minutes ago       Up 15 seconds (healthy)                            butler-cw
-05941501842d        ptarmiganlabs/butler-sos:latest       "docker-entrypoint.s…"   3 weeks ago         Up 2 days (healthy)                                butler-sos
-5255238cdb8b        linuxserver/healthchecks              "/init"                  4 months ago        Up 2 days                 0.0.0.0:8000->8000/tcp   qliksense-task-monitor
-9467c8983eb9        postgres:9.6                          "docker-entrypoint.s…"   4 months ago        Up 2 days                 0.0.0.0:5434->5432/tcp   qliksense-task-monitor-postgres
+CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS                    PORTS     NAMES
+565152b1be90   ptarmiganlabs/butler-cw:latest   "docker-entrypoint.s…"   2 minutes ago   Up 20 seconds (healthy)             butler-cw
 ➜  ~
 ```
 

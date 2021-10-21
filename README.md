@@ -142,6 +142,14 @@ proton:butler-cw-docker goran$ cat config/production.yaml
 logLevel: verbose         # Log level. Possible log levels are silly, debug, verbose, info, warn, error
 fileLogging: true         # true/false to enable/disable logging to disk file
 
+# Configuration of Butler CW's scheduler
+scheduler:
+  startup: 
+    showPerAppSchedule: 
+      enable: true        # Should the first itemCount scheduled runs be shown for each app, on startup?
+      itemCount: 10       # Number of coming runs to show for each app
+  timeZone: LOCAL           # Valid values are UTC and LOCAL. Default value is UTC
+
 # Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
 # The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know
 # that Butler CW is alive.
@@ -162,7 +170,7 @@ dockerHealthCheck:
 # When enabled, Butler CW will write info on uptime and used memory to log files
 uptimeMonitor:
   enabled: true                   # Should uptime messages be written to the console and log files?
-  frequency: every 10 seconds     # https://bunkat.github.io/later/parsers.html
+  frequency: every 60 seconds     # https://bunkat.github.io/later/parsers.html
   logLevel: verbose               # Starting at what log level should uptime messages be shown?
 
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer

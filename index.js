@@ -167,18 +167,25 @@ function loadAppConfig(appConfig) {
                 globals.config.has('scheduler.startup.showPerAppSchedule.itemCount') &&
                 globals.config.get('scheduler.startup.showPerAppSchedule.enable') === true
             ) {
-                const showItems = globals.config.get(
+                const showItemCount = globals.config.get(
                     'scheduler.startup.showPerAppSchedule.itemCount'
                 );
-                const occurrences = later.schedule(sched).next(showItems);
+                const occurrences = later.schedule(sched).next(showItemCount);
 
                 globals.logger.info(
                     '-------------------------------------------------------------------------'
                 );
                 globals.logger.info(`First runs for app ${doc.appId}, "${doc.appDescription}": `);
                 // eslint-disable-next-line no-plusplus
-                for (let i = 0; i < showItems; i++) {
-                    globals.logger.info(`${i + 1}: ${occurrences[i]}`);
+                for (let i = 0; i < showItemCount; i++) {
+                    if (
+                        globals.config.has('scheduler.timeZone') &&
+                        globals.config.get('scheduler.timeZone').toLowerCase() === 'local'
+                    ) {
+                        globals.logger.info(`${i + 1}: ${occurrences[i]}`);
+                    } else {
+                        globals.logger.info(`${i + 1}: ${occurrences[i].toUTCString()}`);
+                    }
                 }
             }
 
@@ -262,6 +269,18 @@ async function mainScript() {
     // Set up uptime logging
     if (globals.config.get('uptimeMonitor.enabled') === true) {
         serviceUptime.serviceUptimeStart(globals.config);
+    }
+
+    // Set up UTC/local time zone
+    if (globals.config.has('scheduler.timeZone')) {
+        const tz = globals.config.get('scheduler.timeZone');
+        if (tz.toLowerCase() === 'local') {
+            later.date.localTime();
+        } else {
+            later.date.UTC();
+        }
+    } else {
+        later.date.UTC();
     }
 
     try {

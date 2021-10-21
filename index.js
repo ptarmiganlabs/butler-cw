@@ -170,7 +170,8 @@ function loadAppConfig(appConfig) {
                 const showItemCount = globals.config.get(
                     'scheduler.startup.showPerAppSchedule.itemCount'
                 );
-                const occurrences = later.schedule(sched).next(showItemCount);
+                const s = later.schedule(sched);
+                const occurrences = s.next(showItemCount);
 
                 globals.logger.info(
                     '-------------------------------------------------------------------------'
@@ -179,12 +180,13 @@ function loadAppConfig(appConfig) {
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < showItemCount; i++) {
                     if (
-                        globals.config.has('scheduler.timeZone') &&
-                        globals.config.get('scheduler.timeZone').toLowerCase() === 'local'
+                        globals.config.has('scheduler.timeZone.logs') &&
+                        globals.config.get('scheduler.timeZone.logs').toLowerCase() === 'local'
                     ) {
                         globals.logger.info(`${i + 1}: ${occurrences[i]}`);
                     } else {
-                        globals.logger.info(`${i + 1}: ${occurrences[i].toUTCString()}`);
+                        const utcString = occurrences[i].toUTCString();
+                        globals.logger.info(`${i + 1}: ${utcString}`);
                     }
                 }
             }
@@ -272,8 +274,8 @@ async function mainScript() {
     }
 
     // Set up UTC/local time zone
-    if (globals.config.has('scheduler.timeZone')) {
-        const tz = globals.config.get('scheduler.timeZone');
+    if (globals.config.has('scheduler.timeZone.scheduleDefine')) {
+        const tz = globals.config.get('scheduler.timeZone.scheduleDefine');
         if (tz.toLowerCase() === 'local') {
             later.date.localTime();
         } else {

@@ -148,7 +148,9 @@ scheduler:
     showPerAppSchedule: 
       enable: true        # Should the first itemCount scheduled runs be shown for each app, on startup?
       itemCount: 10       # Number of coming runs to show for each app
-  timeZone: LOCAL           # Valid values are UTC and LOCAL. Default value is UTC
+  timeZone:                 # Valid values are UTC and LOCAL. Default value is UTC
+    scheduleDefine: UTC     # How should times in the apps config file be interpreted? 
+    logs: UTC              # What time format should be used in log files?
 
 # Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
 # The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know

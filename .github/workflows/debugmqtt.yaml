@@ -1,4 +1,4 @@
-name: Build Docker image CI
+name: Debug MQTT
 
 on:
   workflow_dispatch:

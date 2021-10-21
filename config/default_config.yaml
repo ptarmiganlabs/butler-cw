@@ -4,6 +4,13 @@
 logLevel: info                    # Log level. Possible log levels are silly, debug, verbose, info, warn, error
 fileLogging: false                # true/false to enable/disable logging to disk file
 
+# Configuration of Butler CW's scheduler
+scheduler:
+  startup: 
+    showPerAppSchedule: 
+      enable: true        # Should the first itemCount scheduled runs be shown for each app, on startup?
+      itemCount: 10       # Number of coming runs to show for each app 
+
 # Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
 # The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know 
 # that Butler CW is alive.

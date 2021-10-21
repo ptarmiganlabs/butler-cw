@@ -162,11 +162,25 @@ function loadAppConfig(appConfig) {
         for (const doc of appConfigDoc.apps) {
             const sched = later.parse.text(doc.freq);
 
-            // const occurrences = later.schedule(sched).next(10);
-            // eslint-disable-next-line no-plusplus
-            // for (let i = 0; i < 10; i++) {
-            //     console.log(occurrences[i]);
-            // }
+            if (
+                globals.config.has('scheduler.startup.showPerAppSchedule.enable') &&
+                globals.config.has('scheduler.startup.showPerAppSchedule.itemCount') &&
+                globals.config.get('scheduler.startup.showPerAppSchedule.enable') === true
+            ) {
+                const showItems = globals.config.get(
+                    'scheduler.startup.showPerAppSchedule.itemCount'
+                );
+                const occurrences = later.schedule(sched).next(showItems);
+
+                globals.logger.info(
+                    '-------------------------------------------------------------------------'
+                );
+                globals.logger.info(`First runs for app ${doc.appId}, "${doc.appDescription}": `);
+                // eslint-disable-next-line no-plusplus
+                for (let i = 0; i < showItems; i++) {
+                    globals.logger.info(`${i + 1}: ${occurrences[i]}`);
+                }
+            }
 
             later.setInterval(() => {
                 loadAppIntoCache(doc);
@@ -176,9 +190,12 @@ function loadAppConfig(appConfig) {
             if (doc.doInitialLoad === true) {
                 setTimeout(() => {
                     globals.logger.info(
-                        `Doing initial warming of app ${doc.appId}, "${doc.appDescription}"`
+                        `Starting: initial warming of app ${doc.appId}, "${doc.appDescription}"`
                     );
                     loadAppIntoCache(doc);
+                    globals.logger.info(
+                        `Done: initial warming of app ${doc.appId}, "${doc.appDescription}"`
+                    );
                 }, 5000);
             }
         }

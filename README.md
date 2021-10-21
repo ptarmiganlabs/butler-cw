@@ -44,6 +44,8 @@ The workflow looks like this:
 2. The developer make some additions to the YAML config file and send a pull request to the upstream repository (which is managed by the Sense admins).
 3. When the changes are accepted in the upstream/main Git repository, Butler CW will at next restart use the new config file.
 
+There are instructions in [the template file](https://github.com/ptarmiganlabs/butler-cw/blob/master/config/apps_config.yaml) included in the GitHub repo that explains how this file works.
+
 #### production.yaml
 
 This file contains sensitive information about where to find the Sense server certificates used when connecting to the Sense servers, as well as other parameters used to run the actual cache warming service. This file is stored on local disk.
@@ -196,26 +198,45 @@ proton:butler-cw-docker goran$
 proton:butler-cw-docker goran$ cat config/apps.yaml
 # Rename this file to apps.yaml, then edit it as needed.
 
-# This file is used to specifiy what Qlik Sense apps should be loaded by the cache warmer, when/how often they should be loaded,
-# what filters should be applied when apps are opened etc
+# This file is used to specifiy what Qlik Sense apps should be loaded by the cache warmer, when/how often they should be loaded, 
+# what filters should be applied when apps are opened etc 
 #
-# Frequency attribute must follow rules described here: https://bunkat.github.io/later/parsers.html
+# Frequency attribute must follow rules described here: https://breejs.github.io/later/parsers.html#text
+#
+# NOTE!
+# 1. Second level scheduling does not work as expected. 
+#    For example, 'every 55 seconds' will trigger on each whole minute, plus 5 seconds before each whole minute.
+#    Use minutes as most detailed level of scheduling. 
+#    More info at https://github.com/ptarmiganlabs/butler-cw/issues/116
+#
+#
+# Fields for each app:
+# server: IP or FQDN of the Sense server where the app should be loaded
+# appId: Id of app to load
+# appDescription: Free text description of the app. Can be anything - no check is done Sense APIs using this text
+# appStepThroughSheets: Set to true to have Butler CW step through all sheets of the app, triggering all charts etc to calculate in all sheets
+# doInitialLoad: Set to true to do an initial load of this app when Butler CW is started.
+# freq: Text value representation of how often the app should be loaded
+
 
 apps:
   - server: sense1.mydomain.com
     appId: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5
     appDescription: License monitor
     appStepThroughSheets: true
+    doInitialLoad: true
     freq: every 60 minutes
   - server: sense1.mydomain.com
     appId: dead6f4a-da0b-4b9c-82a2-3f94fdc72599
     appDescription: Meetup.com
     appStepThroughSheets: true
+    doInitialLoad: false
     freq: every 10 minutes
   - server: sense2.mydomain.com
     appId: 492a1bca-1c41-4a01-9104-543a2334c465
     appDescription: 2018 sales targets
     appStepThroughSheets: true
+    doInitialLoad: false
     freq: every 30 minutes
 proton:butler-cw-docker goran$
 ```

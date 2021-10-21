@@ -1,5 +1,6 @@
-const later = require('later');
+const later = require('@breejs/later');
 const axios = require('axios');
+
 const globals = require('./globals');
 
 const callRemoteURL = (remoteURL) => {

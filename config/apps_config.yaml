@@ -3,22 +3,40 @@
 # This file is used to specifiy what Qlik Sense apps should be loaded by the cache warmer, when/how often they should be loaded, 
 # what filters should be applied when apps are opened etc 
 #
-# Frequency attribute must follow rules described here: https://bunkat.github.io/later/parsers.html
+# Frequency attribute must follow rules described here: https://breejs.github.io/later/parsers.html#text
+#
+# NOTE!
+# 1. Second level scheduling does not work as expected. 
+#    For example, 'every 55 seconds' will trigger on each whole minute, plus 5 seconds before each whole minute.
+#    Use minutes as most detailed level of scheduling. 
+#    More info at https://github.com/ptarmiganlabs/butler-cw/issues/116
+#
+#
+# Fields for each app:
+# server: IP or FQDN of the Sense server where the app should be loaded
+# appId: Id of app to load
+# appDescription: Free text description of the app. Can be anything - no check is done Sense APIs using this text
+# appStepThroughSheets: Set to true to have Butler CW step through all sheets of the app, triggering all charts etc to calculate in all sheets
+# doInitialLoad: Set to true to do an initial load of this app when Butler CW is started.
+# freq: Text value representation of how often the app should be loaded
 
 apps:
   - server: senseserver1.mydomain.com
     appId: <app id 1>
     appDescription: Description of app 1
     appStepThroughSheets: false
+    doInitialLoad: false
     freq: every 1 hour
   - server: senseserver.mydomain.com
     appId: <app id 2>
     appDescription: Description of app 2
     appStepThroughSheets: false
+    doInitialLoad: false
     freq: every 2 hours
   - server: hsenseserverost2.mydomain.com
     appId: <app id 3>
     appDescription: Description of app 3
     appStepThroughSheets: false
+    doInitialLoad: false
     freq: every 2 hours
     

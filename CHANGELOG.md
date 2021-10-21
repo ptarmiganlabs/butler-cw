@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.1.1...butler-cw-v3.2.0) (2021-10-21)
+
+
+### Features
+
+* Show first few runs on startup ([29a1b1c](https://www.github.com/ptarmiganlabs/butler-cw/commit/29a1b1cca0951897a90a78796fbee6ba5f44f96f)), closes [#117](https://www.github.com/ptarmiganlabs/butler-cw/issues/117)
+
+
+### Refactoring
+
+* Add doInitialLoad flag ([#111](https://www.github.com/ptarmiganlabs/butler-cw/issues/111)) ([1bd954d](https://www.github.com/ptarmiganlabs/butler-cw/commit/1bd954dd132a3e2531baf42eaf23e3a5621ebe6c))
+
 ### [3.1.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.1.0...butler-cw-v3.1.1) (2021-10-20)
 
 

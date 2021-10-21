@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const dockerHealthCheckServer = require('fastify')({ logger: false });
 const yaml = require('js-yaml');
-const later = require('later');
+const later = require('@breejs/later');
 const GitHubApi = require('@octokit/rest');
 
 const globals = require('./globals');
@@ -153,24 +153,35 @@ function loadAppConfig(appConfig) {
     // Load app config doc, or throw exception on error
     try {
         const appConfigDoc = yaml.load(appConfig);
-        globals.logger.log(
-            'debug',
+        globals.logger.debug(
             `Loading app config using following config:\n ${JSON.stringify(appConfigDoc, null, 2)}`
         );
 
         // Loop over all apps in app config file
-        appConfigDoc.apps.forEach((doc) => {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const doc of appConfigDoc.apps) {
             const sched = later.parse.text(doc.freq);
+
+            // const occurrences = later.schedule(sched).next(10);
+            // eslint-disable-next-line no-plusplus
+            // for (let i = 0; i < 10; i++) {
+            //     console.log(occurrences[i]);
+            // }
+
             later.setInterval(() => {
                 loadAppIntoCache(doc);
             }, sched);
 
-            // Do an initial caching run for current app
-            const sched2 = later.parse.recur().every(5).second();
-            later.setTimeout(() => {
-                loadAppIntoCache(doc);
-            }, sched2);
-        }, this);
+            // Do an initial caching run for current app?
+            if (doc.doInitialLoad === true) {
+                setTimeout(() => {
+                    globals.logger.info(
+                        `Doing initial warming of app ${doc.appId}, "${doc.appDescription}"`
+                    );
+                    loadAppIntoCache(doc);
+                }, 5000);
+            }
+        }
     } catch (e) {
         globals.logger.log('error', `Error while reading app config data: ${e}`);
     }
@@ -185,7 +196,7 @@ async function mainScript() {
 
     // Read QIX schema
     const enigmaPath = `enigma.js/schemas/${globals.config.get('qixVersion')}.json`;
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line global-require, import/no-dynamic-require
     schema = require(enigmaPath);
 
     // Read certificates

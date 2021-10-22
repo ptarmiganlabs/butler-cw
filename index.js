@@ -6,6 +6,7 @@ const dockerHealthCheckServer = require('fastify')({ logger: false });
 const yaml = require('js-yaml');
 const later = require('@breejs/later');
 const GitHubApi = require('@octokit/rest');
+const mqtt = require('mqtt');
 
 const globals = require('./globals');
 const heartbeat = require('./heartbeat');
@@ -16,6 +17,7 @@ let schema;
 let rootCert;
 let client;
 let clientKey;
+let mqttClient;
 
 async function loadAppIntoCache(appConfig) {
     globals.logger.log('verbose', `Starting loading of appid ${appConfig.appId}`);
@@ -141,11 +143,27 @@ async function loadAppIntoCache(appConfig) {
                 'info',
                 `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`
             );
-            // globals.logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
+
+            const sched = later.parse.text(appConfig.freq);
+            const occurrence = later.schedule(sched).next();
+            let nextRun;
+
+            if (globals.config.get('mqttConfig.out.tzFormat').toLowerCase() === 'local') {
+                // Use local timezone
+                nextRun = occurrence.toString();
+            } else {
+                nextRun = occurrence.toUTCString();
+            }
+
+            // eslint-disable-next-line no-param-reassign
+            appConfig.nextRun = nextRun;
+            mqttClient.publish(
+                globals.config.get('mqttConfig.out.baseTopic'),
+                JSON.stringify(appConfig)
+            );
         });
     } else {
         app.session.close();
-        // globals.logger.log('verbose', `Heap used: ${formatter.format(process.memoryUsage().heapUsed)}`);
     }
 }
 
@@ -167,18 +185,27 @@ function loadAppConfig(appConfig) {
                 globals.config.has('scheduler.startup.showPerAppSchedule.itemCount') &&
                 globals.config.get('scheduler.startup.showPerAppSchedule.enable') === true
             ) {
-                const showItems = globals.config.get(
+                const showItemCount = globals.config.get(
                     'scheduler.startup.showPerAppSchedule.itemCount'
                 );
-                const occurrences = later.schedule(sched).next(showItems);
+                const s = later.schedule(sched);
+                const occurrences = s.next(showItemCount);
 
                 globals.logger.info(
                     '-------------------------------------------------------------------------'
                 );
                 globals.logger.info(`First runs for app ${doc.appId}, "${doc.appDescription}": `);
                 // eslint-disable-next-line no-plusplus
-                for (let i = 0; i < showItems; i++) {
-                    globals.logger.info(`${i + 1}: ${occurrences[i]}`);
+                for (let i = 0; i < showItemCount; i++) {
+                    if (
+                        globals.config.has('scheduler.timeZone.logs') &&
+                        globals.config.get('scheduler.timeZone.logs').toLowerCase() === 'local'
+                    ) {
+                        globals.logger.info(`${i + 1}: ${occurrences[i]}`);
+                    } else {
+                        const utcString = occurrences[i].toUTCString();
+                        globals.logger.info(`${i + 1}: ${utcString}`);
+                    }
                 }
             }
 
@@ -264,6 +291,27 @@ async function mainScript() {
         serviceUptime.serviceUptimeStart(globals.config);
     }
 
+    // Set up UTC/local time zone
+    if (globals.config.has('scheduler.timeZone.scheduleDefine')) {
+        const tz = globals.config.get('scheduler.timeZone.scheduleDefine');
+        if (tz.toLowerCase() === 'local') {
+            later.date.localTime();
+        } else {
+            later.date.UTC();
+        }
+    } else {
+        later.date.UTC();
+    }
+
+    // Set up outgoing MQTT
+    if (
+        globals.config.has('mqttConfig.out.enable') &&
+        globals.config.get('mqttConfig.out.enable') === true
+    ) {
+        mqttClient = mqtt.connect(globals.config.get('mqttConfig.broker.uri'));
+    }
+
+    // Load cache warming config
     try {
         if (globals.config.get('appConfig.configSource') === 'disk') {
             appConfigYaml = fs.readFileSync(globals.config.get('appConfig.diskConfigFile'), 'utf8');

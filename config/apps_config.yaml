@@ -26,13 +26,13 @@ apps:
     appDescription: Description of app 1
     appStepThroughSheets: false
     doInitialLoad: false
-    freq: every 1 hour
+    freq: every 5 mins every weekend
   - server: senseserver.mydomain.com
     appId: <app id 2>
     appDescription: Description of app 2
     appStepThroughSheets: false
     doInitialLoad: false
-    freq: every 2 hours
+    freq: at 5:00 pm
   - server: hsenseserverost2.mydomain.com
     appId: <app id 3>
     appDescription: Description of app 3

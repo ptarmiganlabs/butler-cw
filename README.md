@@ -50,6 +50,25 @@ There are instructions in [the template file](https://github.com/ptarmiganlabs/b
 
 This file contains sensitive information about where to find the Sense server certificates used when connecting to the Sense servers, as well as other parameters used to run the actual cache warming service. This file is stored on local disk.
 
+## MQTT support
+
+[MQTT](https://mqtt.org) is a lightweight, robust, publish-subscribe (pub-sub) protocol used in the IoT sector and elsewhere.
+It's very easy to use and makes it trivial to send data from one source system to any number of destination systems ("subscribers") that are interested in this particular data.
+
+Butler CW can be configured to send a MQTT message every time an app is cache warmed.  
+The configuration is done in the `mqttConfig` section of the main config file:
+
+```YAML
+# MQTT config parameters
+mqttConfig:
+  out: 
+    enable: true              # Should info about cache run/warming events be sent as MQTT messages?
+    baseTopic: butler-cw/     # Topic to send cache run events to. Should end with /
+    tzFormat: UTC             # LOCAL or UTC. Default is UTC
+  broker:                     # MQTT server/broker config
+    uri: mqtt://<MQTT server ip/FQDN>:<port>      ## Port is usually 1883
+```
+
 ## Installation and setup
 
 ### Running as a native Node.js app
@@ -181,6 +200,16 @@ clientCertPath: /nodeapp/config/certificate/client.pem
 clientCertKeyPath: /nodeapp/config/certificate/client_key.pem
 clientCertCAPath: /nodeapp/config/certificate/root.pem
 
+# MQTT config parameters
+mqttConfig:
+  out: 
+    enable: true              # Should info about cache run/warming events be sent as MQTT messages?
+    baseTopic: butler-cw/     # Topic to send cache run events to. Should end with /
+    tzFormat: UTC           # LOCAL or UTC. Default is UTC
+  # Items below are mandatory if mqttConfig.enable=true
+  broker:
+    uri: mqtt://1.2.3.4:1883     ## Port is usually 1883
+
 # QIX version to use
 qixVersion: 12.170.2
 
@@ -228,26 +257,25 @@ proton:butler-cw-docker goran$ cat config/apps.yaml
 # doInitialLoad: Set to true to do an initial load of this app when Butler CW is started.
 # freq: Text value representation of how often the app should be loaded
 
-
 apps:
   - server: sense1.mydomain.com
     appId: c36bfbdb-0c4b-4d57-9939-b851d2af1cb5
     appDescription: License monitor
     appStepThroughSheets: true
     doInitialLoad: true
-    freq: every 60 minutes
+    freq: every 5 mins every weekend
   - server: sense1.mydomain.com
     appId: dead6f4a-da0b-4b9c-82a2-3f94fdc72599
     appDescription: Meetup.com
     appStepThroughSheets: true
     doInitialLoad: false
-    freq: every 10 minutes
+    freq: at 5:00 pm
   - server: sense2.mydomain.com
     appId: 492a1bca-1c41-4a01-9104-543a2334c465
     appDescription: 2018 sales targets
     appStepThroughSheets: true
     doInitialLoad: false
-    freq: every 30 minutes
+    freq: every 2 hours
 proton:butler-cw-docker goran$
 ```
 

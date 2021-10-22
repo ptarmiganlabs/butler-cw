@@ -47,6 +47,15 @@ clientCertCAPath: /path/to/client/cert/root.pem
 # clientCertKeyPath: /nodeapp/config/certificate/client_key.pem
 # clientCertCAPath: /nodeapp/config/certificate/root.pem
 
+# MQTT config parameters
+mqttConfig:
+  out: 
+    enable: true              # Should info about cache run/warming events be sent as MQTT messages?
+    baseTopic: butler-cw/     # Topic to send cache run events to. Should end with /
+    tzFormat: UTC             # LOCAL or UTC. Default is UTC
+  broker:                     # MQTT server/broker config
+    uri: mqtt://<MQTT server ip/FQDN>:<port>      ## Port is usually 1883
+
 # QIX version to use
 qixVersion: 12.170.2
 

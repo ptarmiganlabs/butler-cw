@@ -12,7 +12,11 @@ scheduler:
       itemCount: 10         # Number of coming runs to show for each app
   timeZone:                 # Valid values are UTC and LOCAL. Default value is UTC
     scheduleDefine: UTC     # How should times in the apps config file be interpreted? 
-    logs: UTC              # What time format should be used in log files?
+    logs: UTC               # What time format should be used in log files?
+  showNextEvent:        
+    enable: true            # Should date/time of next cache warming event be sent to log file? (true/false) 
+    logLevel: verbose       # Log level to use for the next event log entry. Valid values are silly, debug, verbose, info, warn, error
+    tzFormat: UTC           # LOCAL or UTC. Default is UTC
 
 # Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
 # The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know 

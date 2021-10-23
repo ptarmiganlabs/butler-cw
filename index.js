@@ -145,14 +145,38 @@ async function loadAppIntoCache(appConfig) {
             );
 
             const sched = later.parse.text(appConfig.freq);
-            const occurrence = later.schedule(sched).next();
+            const nextOccurrences = later.schedule(sched).next(2);
+
+            // Should date/time of next cache run for this app be logged?
+            if (
+                globals.config.has('scheduler.showNextEvent.enable') &&
+                globals.config.get('scheduler.showNextEvent.enable') === true
+            ) {
+                if (
+                    globals.config.get('scheduler.showNextEvent.tzFormat').toLowerCase() === 'local'
+                ) {
+                    globals.logger.log(
+                        globals.config.get('scheduler.showNextEvent.logLevel'),
+                        `Next cache warming for app ${appConfig.appId}: ${nextOccurrences[1]}`
+                    );
+                } else {
+                    globals.logger.log(
+                        globals.config.get('scheduler.showNextEvent.logLevel'),
+                        `Next cache warming for app ${
+                            appConfig.appId
+                        }: ${nextOccurrences[1].toUTCString()}`
+                    );
+                }
+            }
+
+            // const sched = later.parse.text(appConfig.freq);
             let nextRun;
 
             if (globals.config.get('mqttConfig.out.tzFormat').toLowerCase() === 'local') {
                 // Use local timezone
-                nextRun = occurrence.toString();
+                nextRun = nextOccurrences[1].toString();
             } else {
-                nextRun = occurrence.toUTCString();
+                nextRun = nextOccurrences[1].toUTCString();
             }
 
             // eslint-disable-next-line no-param-reassign

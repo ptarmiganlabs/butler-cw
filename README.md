@@ -25,13 +25,26 @@ Butler CW consists of four main parts:
 * Node.js app that does the actual cache warming.
 * Config file (YAML) used by the Node.js app to know where to find server certificates etc.
 * A separate config file (YAML) for specifying with what frequency what apps should be loaded into which servers.
-* Docker image that wrap the previous three parts into a single image, which can be executed in any Docker environment. Functionally there is no difference in using native Node.js or Docker - just that the latter is usually a lot more convenient.  
+* Docker image that wrap the previous three parts into a single image, which can be executed in any Docker environment. Functionally there is no difference in using native Node.js or Docker - just that the latter is usually a lot more convenient.
 
-### Configuration files
+## Features
+
+* Control when and on what Sense server specific apps should be loaded/cache warmed.
+* Very flexible, human readable cache warming schedule definition for each app. Choose between using CET or local time zones.
+* Control per app if all sheets in the app should be opened. If enabled, this will effectively pre-calculate all charts in all sheets, for the default selection state in the app. This can dramatically shorten load times when an app is first accessed by end users.
+* Apps can be configured to have an initial cache warming run when Butler CW is first started.
+* Heartbeats sent to infrastructure monitoring tools. Useful if you want to monitor and ensure Butler CW is alive and well.
+* Uptime metrics (how long Butler CW has been running, how much memory it's using etc) written to log files.
+* Send data about all cache warming runs, for all apps, to MQTT for later use by subscribers to the MQTT topics used.
+* Store the app schedule file in GitHub rather than on disk.
+* Logs written to disk and console, with configurable log levels. Choose between using CET or local time zones in log files.
+* ... and more. The main config file is well documented and serves as the ultimate list of what's available in terms of features.
+
+## Configuration files
 
 There are two config files:
 
-#### apps.yaml
+### apps.yaml
 
 This file is used to specify what apps should be pre-loaded into which servers. Most likely there will be several people (Sense developers and admins) that need to edit this file.  
 For that reason this file can be stored either on local disk, or as a better solution, on GitHub or some other revision control system.
@@ -46,7 +59,7 @@ The workflow looks like this:
 
 There are instructions in [the template file](https://github.com/ptarmiganlabs/butler-cw/blob/master/config/apps_config.yaml) included in the GitHub repo that explains how this file works.
 
-#### production.yaml
+### production.yaml
 
 This file contains sensitive information about where to find the Sense server certificates used when connecting to the Sense servers, as well as other parameters used to run the actual cache warming service. This file is stored on local disk.
 
@@ -94,7 +107,7 @@ For example, if the config file is called `production.yaml`, the `NODE_ENV` envi
 Windows: `set NODE_ENV=production`  
 Linux: `export NODE_ENV=production`
 
-The "appStepThroughSheets" field in `./config/apps.yaml` states whether Butler CW should iterate through all sheets and chart objects in the app. If enabled, and there are lots of sheets and charts, **a lot** of RAM might be used when loading the app into Sense's engine. The user experience will on the other hand be great - sheets and the charts on them will load instantly - even those charts that previosuly took long time to render due to complex calculations and/or large data volumes. It is impossible to give firm guidance on what levels of caching and stepping through sheet that is suitable - you have to start on a low level and work your way up, until you find a solution that works in your Qlik Sense environment.
+The "appStepThroughSheets" field in `./config/apps.yaml` controls whether Butler CW should iterate through all sheets and chart objects in the app. If enabled, and there are lots of sheets and charts, **a lot** of RAM might be used when loading the app into Sense's engine. The user experience will on the other hand be great - sheets and the charts on them will load instantly - even those charts that previosuly took long time to render due to complex calculations and/or large data volumes. It is impossible to give firm guidance on what levels of caching and stepping through sheet that is suitable - you have to start on a low level and work your way up, until you find a solution that works in your Qlik Sense environment.
 
 Start the service by running "node index.js". Butler CW has been tested on both macOS, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Debian and Ubuntu.
 
@@ -387,6 +400,15 @@ It is worth noting that Butler CW can quite easily be extended to support other 
 
 You cannot pre-load all apps. Focus on a few of the most used apps, and/or some of the biggest ones, where the impact of cache warming will be the greatest.  
 Also, remember to do an occasional review what apps are being used, and if needed adjust the cach warming strategy. No point in forcing apps that only a few people use into RAM.
+
+## Strange stuff, caveats and things not quite working (yet)
+
+The projects [issue list](https://github.com/ptarmiganlabs/butler-cw/issues) is where bugs and feature requests should go, but there can also be things that aren't really bugs, but still don't work quite as you might expect.. Maybe they will go onto the bug list at some point - TBD.
+
+* If the config setting `scheduler.showNextEvent.enable` is enabled, Butler will right after doing a cache run show when the *next* cache run will take place.  
+  This can be nice if you want to ensure that the schedule you created works as expected.  
+  **The caveat is**: For the *first* cache run it sometimes displays an incorrect time for the *second* schedule run.
+  Maybe it should be classified as a bug.. but it looks like it's tricky to fix, and the impact is really quite minor as it only affects what's shown in the logs right after Butler CW is started.
 
 ## Links & references
 

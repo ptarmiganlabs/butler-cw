@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.2.0...butler-cw-v4.0.0) (2021-10-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* Show time of next cache run
+* Add outgoing MQTT support
+
+### Features
+
+* Add outgoing MQTT support ([0a190cb](https://www.github.com/ptarmiganlabs/butler-cw/commit/0a190cbfbe0a539c4f5c619decb2360fbadb3ccc)), closes [#114](https://www.github.com/ptarmiganlabs/butler-cw/issues/114)
+* Add UTC/localtime support ([4b2890c](https://www.github.com/ptarmiganlabs/butler-cw/commit/4b2890c4cd6e89e92700f134b776044a3181f9a6)), closes [#115](https://www.github.com/ptarmiganlabs/butler-cw/issues/115)
+* Show time of next cache run ([95942ef](https://www.github.com/ptarmiganlabs/butler-cw/commit/95942ef0aefdd44cc97f989c191151e871cf3c91)), closes [#113](https://www.github.com/ptarmiganlabs/butler-cw/issues/113)
+
 ## [3.2.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.1.1...butler-cw-v3.2.0) (2021-10-21)
 
 

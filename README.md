@@ -10,7 +10,7 @@ CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loa
 ## Background
 
 Many years ago Qlik Sense Enterprise (the Windows Server version, which was the only one available at the time) moved to something called "[shared persistence](http://help.qlik.com/en-US/sense/3.2/Subsystems/Installation/Content/InstallationLicensing/Install-Shared.htm)". It simply means that the Sense apps are stored on a central file server, rather than on each individual server in the Sense environment.  
-Shared persistence is today the only supported storage model for Qlik Sense Enterprise on Windows (QSEoW).
+Shared persistence is today the only supported storage model for QSEoW.
 
 The upside of shared persistence is that there is a single version of each app - the one stored on the central file server.
 

@@ -5,7 +5,7 @@
 
 ![Butler CW](img/butler_cw.png)
 
-CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them.
+CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them. Butler CW does this for Qlik Sense Enterprise on Windows (QSEoW).
 
 ## Background
 

@@ -28,7 +28,7 @@
   "dependencies": {
     "@breejs/later": "^4.0.2",
     "@octokit/rest": "^18.12.0",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "config": "^3.3.6",
     "enigma.js": "^2.7.3",
     "eslint": "^7.32.0",

@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.0.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.0...butler-cw-v4.0.1) (2021-10-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to ^0.24.0 ([9a9659c](https://www.github.com/ptarmiganlabs/butler-cw/commit/9a9659c726e593ad43d93e0a80a67ecea31b9dd3))
+
 ## [4.0.0](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v3.2.0...butler-cw-v4.0.0) (2021-10-23)
 
 

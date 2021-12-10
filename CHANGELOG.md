@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.0.3](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.2...butler-cw-v4.0.3) (2021-12-10)
+
+
+### Miscellaneous
+
+* **deps:** update dependency prettier to v2.5.1 ([e9f9e5d](https://www.github.com/ptarmiganlabs/butler-cw/commit/e9f9e5deb7e227e8f37341d98082e2171213bdf0))
+
 ### [4.0.2](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.1...butler-cw-v4.0.2) (2021-12-01)
 
 

@@ -37,7 +37,7 @@ dockerHealthCheck:
 # Uptime monitor
 # When enabled, Butler CW will write info on uptime and used memory to log files
 uptimeMonitor:
-  enabled: true                   # Should uptime messages be written to the console and log files?
+  enabled: false                   # Should uptime messages be written to the console and log files?
   frequency: every 60 seconds     # https://breejs.github.io/later/parsers.html#text
   logLevel: verbose               # Starting at what log level should uptime messages be shown?
 
@@ -54,7 +54,7 @@ clientCertCAPath: /path/to/client/cert/root.pem
 # MQTT config parameters
 mqttConfig:
   out: 
-    enable: true              # Should info about cache run/warming events be sent as MQTT messages?
+    enable: false              # Should info about cache run/warming events be sent as MQTT messages?
     baseTopic: butler-cw/     # Topic to send cache run events to. Should end with /
     tzFormat: UTC             # LOCAL or UTC. Default is UTC
   broker:                     # MQTT server/broker config

@@ -164,38 +164,43 @@ drwxr-xr-x  5 goran  staff   160 Sep 27 10:43 ..
 -rw-r--r--@ 1 goran  staff  1192 Sep 27 10:43 root.pem
 ```
 
-What do the config files look like?
+What does a real-world config file look like?
 
 ```bash
 proton:butler-cw-docker goran$ cat config/production.yaml
 # Rename this file to production.yaml, and fill in data as needed below.
 
 # Logging configuration
-logLevel: verbose         # Log level. Possible log levels are silly, debug, verbose, info, warn, error
-fileLogging: true         # true/false to enable/disable logging to disk file
+logLevel: info          # Log level. Valid log levels are silly, debug, verbose, info, warn, error
+fileLogging: true       # true/false to enable/disable logging to disk file
 
 # Configuration of Butler CW's scheduler
 scheduler:
   startup: 
     showPerAppSchedule: 
-      enable: true        # Should the first itemCount scheduled runs be shown for each app, on startup?
-      itemCount: 10       # Number of coming runs to show for each app
+      enable: true          # Should the first itemCount scheduled runs be shown for each app, on startup?
+      itemCount: 10         # Number of coming runs to show for each app
   timeZone:                 # Valid values are UTC and LOCAL. Default value is UTC
     scheduleDefine: UTC     # How should times in the apps config file be interpreted? 
-    logs: UTC              # What time format should be used in log files?
+    logs: UTC               # What time format should be used in log files?
+  showNextEvent:        
+    enable: true            # Should date/time of next cache warming event be sent to log file? (true/false) 
+    logLevel: warn       # Log level to use for the next event log entry. Valid values are silly, debug, verbose, info, warn, error
+    tzFormat: UTC           # LOCAL or UTC. Default is UTC
 
-# Heartbeats can be used to send "I'm alive" messages to some other tool, e.g. an infrastructure monitoring tool
-# The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know
+# Heartbeats can be used to send "I'm alive" messages to any other tool, e.g. a infrastructure monitoring tool
+# The concept is simple: The remoteURL will be called at the specified frequency. The receiving tool will then know 
 # that Butler CW is alive.
 heartbeat:
   enabled: true
-  remoteURL: http://healthcheck.ptarmiganlabs.net/ping/138514b0-882a-4a44-8548-96f7d16c9242
-  frequency: every 30 seconds         # https://bunkat.github.io/later/parsers.html
+  remoteURL: https://healthcheck.ptarmiganlabs.net/ping/138514b0-882a-4a44-8548-96f7d16c9242
+  # frequency: every 1 minute     # https://bunkat.github.io/later/parsers.html
+  frequency: every 10 seconds     # https://bunkat.github.io/later/parsers.html
 
-# Docker health checks are used when running Butler CW as a Docker container.
+# Docker health checks are used when running Butler CW as a Docker container. 
 # The Docker engine will call the container's health check REST endpoint with a set interval to determine
 # whether the container is alive/well or not.
-# If you are not running Butler CW in Docker you can safely disable this feature.
+# If you are not running Butler CW in Docker you can safely disable this feature. 
 dockerHealthCheck:
   enabled: true    # Control whether a REST endpoint will be set up to serve Docker health check messages
   port: 12398      # Port the Docker health check service runs on (if enabled)
@@ -204,7 +209,7 @@ dockerHealthCheck:
 # When enabled, Butler CW will write info on uptime and used memory to log files
 uptimeMonitor:
   enabled: true                   # Should uptime messages be written to the console and log files?
-  frequency: every 60 seconds     # https://bunkat.github.io/later/parsers.html
+  frequency: every 10 seconds     # https://bunkat.github.io/later/parsers.html
   logLevel: verbose               # Starting at what log level should uptime messages be shown?
 
 # Paths to client certificates to use when connecting to Sense server. Can be pem or pvk/cer
@@ -218,10 +223,9 @@ mqttConfig:
   out: 
     enable: true              # Should info about cache run/warming events be sent as MQTT messages?
     baseTopic: butler-cw/     # Topic to send cache run events to. Should end with /
-    tzFormat: UTC           # LOCAL or UTC. Default is UTC
-  # Items below are mandatory if mqttConfig.enable=true
-  broker:
-    uri: mqtt://1.2.3.4:1883     ## Port is usually 1883
+    tzFormat: UTC             # LOCAL or UTC. Default is UTC
+  broker:                     # MQTT server/broker config
+    uri: mqtt://1.2.3.4:1883       ## Port is usually 1883
 
 # QIX version to use
 qixVersion: 12.170.2
@@ -230,7 +234,7 @@ qixVersion: 12.170.2
 appConfig:
   # Valid options are disk, github
   configSource: disk
-
+  
   # Leave strings empty if disk config not used
   diskConfigFile: ./config/apps.yaml
 

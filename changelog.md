@@ -1,5 +1,17 @@
 # Changelog
 
+### [4.0.2](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.1...butler-cw-v4.0.2) (2021-12-01)
+
+
+### Bug Fixes
+
+* Slim down release ZIP artefacts ([742c180](https://www.github.com/ptarmiganlabs/butler-cw/commit/742c1805e4d2eb15293a7ef9ffc8de24af6d1d70))
+
+
+### Miscellaneous
+
+* **deps:** Update dependencies ([5b75ad2](https://www.github.com/ptarmiganlabs/butler-cw/commit/5b75ad2f9732e64ad66655fb8a9450dd9b5f3d38))
+
 ### [4.0.1](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.0...butler-cw-v4.0.1) (2021-10-26)
 
 

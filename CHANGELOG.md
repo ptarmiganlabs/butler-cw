@@ -1,5 +1,26 @@
 # Changelog
 
+### [4.0.3](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.2...butler-cw-v4.0.3) (2022-01-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint-config-airbnb-base to v15 ([35b489d](https://github.com/ptarmiganlabs/butler-cw/commit/35b489d1ca51aaa27241541e8139ff0f4858598e))
+* Disable MQTT and uptime monitor in template config file ([32a80c6](https://github.com/ptarmiganlabs/butler-cw/commit/32a80c6794f70c5a8cdc7cd83fffb6c443c566c0)), closes [#138](https://github.com/ptarmiganlabs/butler-cw/issues/138)
+* Improved config robustness ([601c5d6](https://github.com/ptarmiganlabs/butler-cw/commit/601c5d66d3abe939009706669a0badf70cc03b58))
+
+
+### Miscellaneous
+
+* **deps:** update dependency prettier to v2.5.1 ([e9f9e5d](https://github.com/ptarmiganlabs/butler-cw/commit/e9f9e5deb7e227e8f37341d98082e2171213bdf0))
+* **deps:** update googlecloudplatform/release-please-action action to v3 ([079b70e](https://github.com/ptarmiganlabs/butler-cw/commit/079b70ebea0426c662f405ba29fe371d8b0c8e00))
+* Update dependencies ([e51b470](https://github.com/ptarmiganlabs/butler-cw/commit/e51b470584ef44779df7d3464d911e225bacca23))
+
+
+### Documentation
+
+* Update sample config file in README ([28780c4](https://github.com/ptarmiganlabs/butler-cw/commit/28780c487dd2c8eccf8e809e6d5f55eea99590bc))
+
 ### [4.0.2](https://www.github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.1...butler-cw-v4.0.2) (2021-12-01)
 
 

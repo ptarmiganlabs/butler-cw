@@ -172,7 +172,10 @@ async function loadAppIntoCache(appConfig) {
             // const sched = later.parse.text(appConfig.freq);
             let nextRun;
 
-            if (globals.config.get('mqttConfig.out.tzFormat').toLowerCase() === 'local') {
+            if (
+                globals.config.has('mqttConfig.out.tzFormat') &&
+                globals.config.get('mqttConfig.out.tzFormat').toLowerCase() === 'local'
+            ) {
                 // Use local timezone
                 nextRun = nextOccurrences[1].toString();
             } else {
@@ -181,10 +184,15 @@ async function loadAppIntoCache(appConfig) {
 
             // eslint-disable-next-line no-param-reassign
             appConfig.nextRun = nextRun;
-            mqttClient.publish(
-                globals.config.get('mqttConfig.out.baseTopic'),
-                JSON.stringify(appConfig)
-            );
+            if (
+                globals.config.has('mqttConfig.out.enable') &&
+                globals.config.get('mqttConfig.out.enable') === true
+            ) {
+                mqttClient.publish(
+                    globals.config.get('mqttConfig.out.baseTopic'),
+                    JSON.stringify(appConfig)
+                );
+            }
         });
     } else {
         app.session.close();
@@ -279,7 +287,10 @@ async function mainScript() {
         : null;
 
     // Start Docker healthcheck REST server on port set in config file
-    if (globals.config.get('dockerHealthCheck.enabled') === true) {
+    if (
+        globals.config.has('dockerHealthCheck.enabled') &&
+        globals.config.get('dockerHealthCheck.enabled') === true
+    ) {
         try {
             globals.logger.verbose('MAIN: Starting Docker healthcheck server...');
 
@@ -306,12 +317,18 @@ async function mainScript() {
     }
 
     // Set up heartbeats, if enabled in the config file
-    if (globals.config.get('heartbeat.enabled') === true) {
+    if (
+        globals.config.has('heartbeat.enabled') &&
+        globals.config.get('heartbeat.enabled') === true
+    ) {
         heartbeat.setupHeartbeatTimer(globals.config);
     }
 
     // Set up uptime logging
-    if (globals.config.get('uptimeMonitor.enabled') === true) {
+    if (
+        globals.config.has('uptimeMonitor.enabled') &&
+        globals.config.get('uptimeMonitor.enabled') === true
+    ) {
         serviceUptime.serviceUptimeStart(globals.config);
     }
 
@@ -337,10 +354,16 @@ async function mainScript() {
 
     // Load cache warming config
     try {
-        if (globals.config.get('appConfig.configSource') === 'disk') {
+        if (
+            globals.config.has('appConfig.configSource') &&
+            globals.config.get('appConfig.configSource') === 'disk'
+        ) {
             appConfigYaml = fs.readFileSync(globals.config.get('appConfig.diskConfigFile'), 'utf8');
             loadAppConfig(appConfigYaml);
-        } else if (globals.config.get('appConfig.configSource') === 'github') {
+        } else if (
+            globals.config.has('appConfig.configSource') &&
+            globals.config.get('appConfig.configSource') === 'github'
+        ) {
             const github = new GitHubApi({
                 // optional
                 // debug: true,

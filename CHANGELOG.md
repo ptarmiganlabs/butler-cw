@@ -1,5 +1,17 @@
 # Changelog
 
+### [4.0.4](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.3...butler-cw-v4.0.4) (2022-02-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to ^0.26.0 ([2b146a0](https://github.com/ptarmiganlabs/butler-cw/commit/2b146a02aefe6f9a85d1b12eb3d43fb9f08f9730))
+
+
+### Miscellaneous
+
+* **deps:** bump node-fetch from 2.6.5 to 2.6.7 ([049a041](https://github.com/ptarmiganlabs/butler-cw/commit/049a041568e47349a283c2d34d999be61a39e5a1))
+
 ### [4.0.3](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.2...butler-cw-v4.0.3) (2022-01-05)
 
 

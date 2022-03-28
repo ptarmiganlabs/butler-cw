@@ -1,5 +1,20 @@
 # Changelog
 
+### [4.0.5](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.4...butler-cw-v4.0.5) (2022-03-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint-config-prettier to v8.5.0 ([9291a49](https://github.com/ptarmiganlabs/butler-cw/commit/9291a493b11dab18cc7bc5c2c5611c05b4155f04))
+
+
+### Miscellaneous
+
+* **deps:** bump minimist from 1.2.5 to 1.2.6 ([44d5328](https://github.com/ptarmiganlabs/butler-cw/commit/44d5328631b22219303692f3ec14416f67db8ad6))
+* **deps:** update actions/checkout action to v3 ([c3e73a9](https://github.com/ptarmiganlabs/butler-cw/commit/c3e73a94e3aecf481c9348699f2729ada2ca04e5))
+* **deps:** update dependency prettier to v2.6.0 ([456208b](https://github.com/ptarmiganlabs/butler-cw/commit/456208b9e2993b633cbbcdf812e7a58d8cce8e1a))
+* **deps:** update dependency prettier to v2.6.1 ([abd3c8c](https://github.com/ptarmiganlabs/butler-cw/commit/abd3c8cb53e87aab56da3033ab30a376d0589cfb))
+
 ### [4.0.4](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.3...butler-cw-v4.0.4) (2022-02-15)
 
 

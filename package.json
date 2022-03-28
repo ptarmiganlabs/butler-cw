@@ -1,6 +1,6 @@
 {
   "name": "butler-cw",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Cache warming app for Qlik Sense",
   "main": "index.js",
   "directories": {

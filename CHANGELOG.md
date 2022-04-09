@@ -1,5 +1,13 @@
 # Changelog
 
+### [4.0.6](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.5...butler-cw-v4.0.6) (2022-04-09)
+
+
+### Miscellaneous
+
+* **deps:** bump moment from 2.29.1 to 2.29.2 ([693328a](https://github.com/ptarmiganlabs/butler-cw/commit/693328aee28833598d48134d30572f974323a256))
+* **deps:** update dependency prettier to v2.6.2 ([67df4eb](https://github.com/ptarmiganlabs/butler-cw/commit/67df4ebbd4eecf23fd3c0e97d8ef62ca6ebd14d7))
+
 ### [4.0.5](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.4...butler-cw-v4.0.5) (2022-03-28)
 
 

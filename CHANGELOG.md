@@ -1,5 +1,24 @@
 # Changelog
 
+### [4.0.7](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.6...butler-cw-v4.0.7) (2022-05-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to ^0.27.0 ([8999db5](https://github.com/ptarmiganlabs/butler-cw/commit/8999db502b3c5dc27f58aa4c1b8aca0f226a8f57))
+
+
+### Miscellaneous
+
+* **deps:** bump async from 3.2.0 to 3.2.3 ([327a4e2](https://github.com/ptarmiganlabs/butler-cw/commit/327a4e27b49dd33c919626ab06de133a855dad4c))
+* **deps:** update docker/build-push-action action to v3 ([e3367c4](https://github.com/ptarmiganlabs/butler-cw/commit/e3367c42e39b5dedea973dc52decb6999be5a20e))
+* **deps:** update docker/login-action action to v2 ([c669e98](https://github.com/ptarmiganlabs/butler-cw/commit/c669e989b0d4ba5137eb8e056b98d6c8a2ed564e))
+* **deps:** update docker/metadata-action action to v4 ([daabd68](https://github.com/ptarmiganlabs/butler-cw/commit/daabd68d899d84a7dcadd0a5deac66fa940ff215))
+* **deps:** update docker/setup-buildx-action action to v2 ([49f5b67](https://github.com/ptarmiganlabs/butler-cw/commit/49f5b673f833ec6c7bc22d10fc9550d2a2edd94c))
+* **deps:** update docker/setup-qemu-action action to v2 ([c16903c](https://github.com/ptarmiganlabs/butler-cw/commit/c16903c85e7eb6f2678100a93a17ebcd8d051da5))
+* **deps:** update github/codeql-action action to v2 ([a2b04ae](https://github.com/ptarmiganlabs/butler-cw/commit/a2b04aec1bd9bb2de148599f9cf5b7a1de49ba3a))
+* **deps:** update node.js to v18 ([05b29d8](https://github.com/ptarmiganlabs/butler-cw/commit/05b29d849fd54f03b8c1f602f298bde924305d23))
+
 ### [4.0.6](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.0.5...butler-cw-v4.0.6) (2022-04-09)
 
 

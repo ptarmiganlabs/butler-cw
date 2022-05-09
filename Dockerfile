@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:18-bullseye-slim
 
 # Add some information about the image
 LABEL maintainer="Göran Sander mountaindude@ptarmiganlabs.com"

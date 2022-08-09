@@ -1,6 +1,6 @@
 {
   "name": "butler-cw",
-  "version": "4.0.7",
+  "version": "4.1.0",
   "description": "Cache warming app for Qlik Sense",
   "main": "index.js",
   "directories": {
@@ -50,8 +50,8 @@
     "prettier": "^2.7.1"
   },
   "pkg": {
-      "scripts": [
-          "node_modules/enigma.js/**/*.json"
-      ]
+    "scripts": [
+      "node_modules/enigma.js/**/*.json"
+    ]
   }
 }

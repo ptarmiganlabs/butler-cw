@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.1.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.1.0...butler-cw-v4.1.0) (2022-10-13)
+
+
+### Features
+
+* Create standalone binaries for Windows, macOS and Linux ([e4664a5](https://github.com/ptarmiganlabs/butler-cw/commit/e4664a562d435913055ecaa27b03cad7c9e70592)), closes [#171](https://github.com/ptarmiganlabs/butler-cw/issues/171)
+
+
+### Miscellaneous
+
+* **deps:** bump fastify from 4.4.0 to 4.8.1 ([9a85c5b](https://github.com/ptarmiganlabs/butler-cw/commit/9a85c5b8f2a299f47de7366e4777d590132fec99))
+* **deps:** Update dependencies ([423b7fb](https://github.com/ptarmiganlabs/butler-cw/commit/423b7fb9c965e12956a0d58e93798cefd4d193ac))
+* **master:** release butler-cw 4.1.0 ([ee99862](https://github.com/ptarmiganlabs/butler-cw/commit/ee99862251def514cf2effbe95132fb9fc8d3146))
+* **master:** release butler-cw 4.1.0 ([2b5670c](https://github.com/ptarmiganlabs/butler-cw/commit/2b5670c8147e0dc5127509d69b5cf1a3cdbff1b1))
+
 ## [4.1.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.1.0...butler-cw-v4.1.0) (2022-08-09)
 
 

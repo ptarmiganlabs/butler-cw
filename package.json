@@ -47,7 +47,7 @@
     "ws": "^8.8.1"
   },
   "devDependencies": {
-    "prettier": "^2.7.1"
+    "prettier": "2.7.1"
   },
   "pkg": {
     "scripts": [

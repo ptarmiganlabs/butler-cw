@@ -36,7 +36,7 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "fastify": "^4.8.1",
+    "fastify": "^4.10.2",
     "fastify-healthcheck": "^4.1.0",
     "js-yaml": "^4.1.0",
     "moment": "^2.29.4",

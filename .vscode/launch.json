@@ -15,8 +15,8 @@
             "NODE_ENV": "production"
         },
         "args": [
-            "--config-file",
-            "config/production.yaml",
+            // "--config-file",
+            // "config/production.yaml",
         ],
         "outFiles": ["${workspaceFolder}/**/*.js"]
 }]

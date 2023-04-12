@@ -2,16 +2,14 @@ const enigma = require('enigma.js');
 const SenseUtilities = require('enigma.js/sense-utilities');
 const WebSocket = require('ws');
 const fs = require('fs');
-
 const FastifyHealthcheck = require('fastify-healthcheck');
 const Fastify = require('fastify');
-const dockerHealthCheckServer = Fastify({ logger: false });
 
+const dockerHealthCheckServer = Fastify({ logger: false });
 const yaml = require('js-yaml');
 const later = require('@breejs/later');
 const GitHubApi = require('@octokit/rest');
 const mqtt = require('mqtt');
-
 const globals = require('./globals');
 const heartbeat = require('./heartbeat');
 const serviceUptime = require('./service_uptime');

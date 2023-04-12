@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const winston = require('winston');
 require('winston-daily-rotate-file');
 const upath = require('upath');
@@ -62,7 +63,6 @@ if (options.configFile && options.configFile.length > 0) {
     console.log(`Config file extension: ${configFileExtension}`);
 
     if (configFileExtension.toLowerCase() !== '.yaml') {
-        // eslint-disable-next-line no-console
         console.log('Error: Main config file extension must be yaml');
         process.exit(1);
     }
@@ -71,7 +71,6 @@ if (options.configFile && options.configFile.length > 0) {
         process.env.NODE_CONFIG_DIR = configFilePath;
         process.env.NODE_ENV = configFileBasename;
     } else {
-        // eslint-disable-next-line no-console
         console.log(`Error: Specified config file "${configFileExpanded}" does not exist`);
         process.exit(1);
     }
@@ -101,7 +100,6 @@ if (options.appConfigFile && options.appConfigFile.length > 0) {
     console.log(`App config file extension: ${appConfigFileExtension}`);
 
     if (appConfigFileExtension.toLowerCase() !== '.yaml') {
-        // eslint-disable-next-line no-console
         console.log('Error: Cache warming config file extension must be yaml');
         process.exit(1);
     }
@@ -109,7 +107,6 @@ if (options.appConfigFile && options.appConfigFile.length > 0) {
     if (checkFileExistsSync(appConfigFileExpanded)) {
         config.appConfig.diskConfigFile = appConfigFileExpanded;
     } else {
-        // eslint-disable-next-line no-console
         console.log(`Error: Specified app config file "${appConfigFileExpanded}" does not exist`);
         process.exit(1);
     }
@@ -121,7 +118,6 @@ if (isPkg && configFileOption === undefined) {
     // Show help if running as standalone app and mandatory options (e.g. config file) are not specified
     program.help({ error: true });
 }
-
 
 // Is there a log level file specified on the command line?
 if (options.logLevel && options.logLevel.length > 0) {

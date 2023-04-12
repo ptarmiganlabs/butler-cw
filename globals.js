@@ -77,6 +77,10 @@ if (options.configFile && options.configFile.length > 0) {
     }
 }
 
+// Load main config file
+// eslint-disable-next-line import/order
+const config = require('config');
+
 // Is there an app cache warming config file specified on the command line?
 let appConfigFileOption;
 let appConfigFileExpanded;
@@ -103,7 +107,7 @@ if (options.appConfigFile && options.appConfigFile.length > 0) {
     }
 
     if (checkFileExistsSync(appConfigFileExpanded)) {
-        options.appConfigFile = appConfigFileExpanded;
+        config.appConfig.diskConfigFile = appConfigFileExpanded;
     } else {
         // eslint-disable-next-line no-console
         console.log(`Error: Specified app config file "${appConfigFileExpanded}" does not exist`);
@@ -118,8 +122,6 @@ if (isPkg && configFileOption === undefined) {
     program.help({ error: true });
 }
 
-// eslint-disable-next-line import/order
-const config = require('config');
 
 // Is there a log level file specified on the command line?
 if (options.logLevel && options.logLevel.length > 0) {

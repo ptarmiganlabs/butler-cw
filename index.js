@@ -2,7 +2,11 @@ const enigma = require('enigma.js');
 const SenseUtilities = require('enigma.js/sense-utilities');
 const WebSocket = require('ws');
 const fs = require('fs');
-const dockerHealthCheckServer = require('fastify')({ logger: false });
+
+const FastifyHealthcheck = require('fastify-healthcheck');
+const Fastify = require('fastify');
+const dockerHealthCheckServer = Fastify({ logger: false });
+
 const yaml = require('js-yaml');
 const later = require('@breejs/later');
 const GitHubApi = require('@octokit/rest');
@@ -294,11 +298,12 @@ async function mainScript() {
         try {
             globals.logger.verbose('MAIN: Starting Docker healthcheck server...');
 
-            // Use http://localhost:12398/health as Docker healthcheck URL
-            // Create restServer object
-            // eslint-disable-next-line global-require
-            dockerHealthCheckServer.register(require('fastify-healthcheck'));
-            await dockerHealthCheckServer.listen(globals.config.get('dockerHealthCheck.port'));
+            // Listen on localhost:<port>/health
+            await dockerHealthCheckServer.register(FastifyHealthcheck);
+
+            await dockerHealthCheckServer.listen({
+                port: globals.config.get('dockerHealthCheck.port'),
+            });
 
             globals.logger.info(
                 `MAIN: Started Docker healthcheck server on port ${globals.config.get(

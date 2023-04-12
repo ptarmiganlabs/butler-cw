@@ -1,6 +1,4 @@
 {
-  "last-release-sha": "83175a8ac0792854c93058071599b075201d3706",
-  "release-as": "4.1.0",
   "release-type": "node",
   "draft": true,
   "changelog-sections": [
@@ -27,6 +25,11 @@
     {
       "type": "docs",
       "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "build",
+      "section": "Miscellaneous",
       "hidden": false
     }
   ],

@@ -49,7 +49,6 @@ jobs:
           echo "minor           : ${{ steps.release.outputs.minor }}"
           echo "patch           : ${{ steps.release.outputs.patch }}"
           echo "sha             : ${{ steps.release.outputs.sha }}"
-          echo "pr              : ${{ steps.release.outputs.pr }}"
 
       - name: Checkout repository
         uses: actions/checkout@v3

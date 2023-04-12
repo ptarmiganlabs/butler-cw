@@ -1,6 +1,6 @@
 {
   "name": "butler-cw",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Cache warming for client-managed Qlik Sense Enterprise on Windows",
   "main": "index.js",
   "directories": {

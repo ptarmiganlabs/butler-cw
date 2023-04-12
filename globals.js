@@ -7,8 +7,6 @@ const fs = require('fs-extra');
 // Get app version from package.json file
 const appVersion = require('./package.json').version;
 
-
-
 function checkFileExistsSync(filepath) {
     let flag = true;
     try {
@@ -57,6 +55,12 @@ if (options.configFile && options.configFile.length > 0) {
     configFileExtension = upath.extname(configFileExpanded);
     configFileBasename = upath.basename(configFileExpanded, configFileExtension);
 
+    console.log(`Config file option value: ${configFileExpanded}`);
+    console.log(`Config file, full path & file: ${configFileExpanded}`);
+    console.log(`Config file path: ${configFilePath}`);
+    console.log(`Config file name: ${configFileBasename}`);
+    console.log(`Config file extension: ${configFileExtension}`);
+
     if (configFileExtension.toLowerCase() !== '.yaml') {
         // eslint-disable-next-line no-console
         console.log('Error: Main config file extension must be yaml');
@@ -86,9 +90,23 @@ if (options.appConfigFile && options.appConfigFile.length > 0) {
     appConfigFileExtension = upath.extname(appConfigFileExpanded);
     appConfigFileBasename = upath.basename(appConfigFileExpanded, appConfigFileExtension);
 
+    console.log(`App config file option value: ${appConfigFileExpanded}`);
+    console.log(`App config file, full path & file: ${appConfigFileExpanded}`);
+    console.log(`App config file path: ${appConfigFilePath}`);
+    console.log(`App config file name: ${appConfigFileBasename}`);
+    console.log(`App config file extension: ${appConfigFileExtension}`);
+
     if (appConfigFileExtension.toLowerCase() !== '.yaml') {
         // eslint-disable-next-line no-console
         console.log('Error: Cache warming config file extension must be yaml');
+        process.exit(1);
+    }
+
+    if (checkFileExistsSync(appConfigFileExpanded)) {
+        options.appConfigFile = appConfigFileExpanded;
+    } else {
+        // eslint-disable-next-line no-console
+        console.log(`Error: Specified app config file "${appConfigFileExpanded}" does not exist`);
         process.exit(1);
     }
 }
@@ -105,7 +123,7 @@ const config = require('config');
 
 // Is there a log level file specified on the command line?
 if (options.logLevel && options.logLevel.length > 0) {
-    config.Butler.logLevel = options.logLevel;
+    config.logLevel = options.logLevel;
 }
 
 // Set up logger with timestamps and colors, and optional logging to disk file

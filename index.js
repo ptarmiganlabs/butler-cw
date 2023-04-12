@@ -145,7 +145,7 @@ async function loadAppIntoCache(appConfig) {
             app.session.close();
             globals.logger.log(
                 'info',
-                `App ${appConfig.appId}: Cached ${visCnt} visualizations on ${sheetCnt} sheets.`
+                `App ${appConfig.appId} ("${appConfig.appDescription}"). Cached ${visCnt} visualizations on ${sheetCnt} sheets.`
             );
 
             const sched = later.parse.text(appConfig.freq);

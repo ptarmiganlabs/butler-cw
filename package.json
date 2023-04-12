@@ -1,7 +1,7 @@
 {
   "name": "butler-cw",
   "version": "4.1.0",
-  "description": "Cache warming app for Qlik Sense",
+  "description": "Cache warming for client-managed Qlik Sense Enterprise on Windows",
   "main": "index.js",
   "directories": {
     "doc": "doc"
@@ -37,7 +37,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
-    "fastify": "^4.8.1",
+    "fastify": "^4.15.0",
     "fastify-healthcheck": "^4.4.0",
     "fs-extra": "^11.1.1",
     "js-yaml": "^4.1.0",

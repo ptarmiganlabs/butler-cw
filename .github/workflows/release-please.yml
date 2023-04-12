@@ -10,9 +10,9 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      releases_created: ${{ steps.release.outputs.releases_created }}
-      release_tag_name: ${{ steps.release.outputs['tag_name'] }}
-      release_upload_url: ${{ steps.release.outputs['upload_url'] }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      release_tag_name: ${{ steps.release.outputs.tag_name }}
+      release_upload_url: ${{ steps.release.outputs.upload_url }}
     env:
       GITHUB_REF: ${{ github.ref }}
       GITHUB_TOKEN: ${{ secrets.PAT }}
@@ -28,20 +28,28 @@ jobs:
         with:
           command: manifest
 
-      - name: Show output from Release-Please 3
-        if: ${{ steps.release.outputs.releases_created }}
+      - name: Show output from Release-Please
+        if: always()
+        env:
+          RELEASE_PLEASE_OUTPUT: ${{ toJSON(steps.release.outputs) }}
+        run: echo "$RELEASE_PLEASE_OUTPUT"
+
+      - name: Show output from Release-Please
+        if: ${{ steps.release.outputs.release_created }}
         run: |
           echo "releases_created: ${{ steps.release.outputs.releases_created }}"
-          echo "draft           : ${{ steps.release.outputs['draft'] }}"
-          echo "path            : ${{ steps.release.outputs['path'] }}"
-          echo "upload_url      : ${{ steps.release.outputs['upload_url'] }}"
-          echo "html_url        : ${{ steps.release.outputs['html_url'] }}"
-          echo "tag_name        : ${{ steps.release.outputs['tag_name'] }}"
-          echo "version         : ${{ steps.release.outputs['version'] }}"
-          echo "major           : ${{ steps.release.outputs['major'] }}"
-          echo "minor           : ${{ steps.release.outputs['minor'] }}"
-          echo "patch           : ${{ steps.release.outputs['patch'] }}"
-          echo "sha             : ${{ steps.release.outputs['sha'] }}"
+          echo "release_created : ${{ steps.release.outputs.release_created }}"
+          echo "draft           : ${{ steps.release.outputs.draft }}"
+          echo "path            : ${{ steps.release.outputs.path }}"
+          echo "upload_url      : ${{ steps.release.outputs.upload_url }}"
+          echo "html_url        : ${{ steps.release.outputs.html_url }}"
+          echo "tag_name        : ${{ steps.release.outputs.tag_name }}"
+          echo "version         : ${{ steps.release.outputs.version }}"
+          echo "major           : ${{ steps.release.outputs.major }}"
+          echo "minor           : ${{ steps.release.outputs.minor }}"
+          echo "patch           : ${{ steps.release.outputs.patch }}"
+          echo "sha             : ${{ steps.release.outputs.sha }}"
+          echo "pr              : ${{ steps.release.outputs.pr }}"
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -49,69 +57,92 @@ jobs:
       - name: Install dependencies
         run: |
           pwd
+          ls -la
           npm install
 
       - name: Run Snyk to check for vulnerabilities
+        if: github.repository_owner == 'ptarmiganlabs'
         uses: snyk/actions/node@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=./package.json --sarif-file-output=snyk.sarif
+          args: --file=./package.json --sarif-file-output=./snyk.sarif
           # command: test
           
       - name: Upload Snyk result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: snyk.sarif
+          sarif_file: ./snyk.sarif
 
       - name: Install tool for creating stand-alone executables
-        if: ${{ steps.release.outputs.releases_created }}
-        run: npm install -g pkg
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          npm install -g pkg
+          npm i -g @vercel/ncc
 
       - name: Package stand-alone binaries
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
           # mkdir release/alpine
         run: |
           pwd
           ls -la
-          mkdir release
-          mkdir release/macos
-          mkdir release/win
-          mkdir release/linux
-          pkg ./index.js --config ./package.json --output release/macos/${DIST_FILE_NAME} --targets node16-macos-x64 --compress GZip
-          pkg ./index.js --config ./package.json --output release/win/${DIST_FILE_NAME}.exe --targets node16-win-x64 --compress GZip
-          pkg ./index.js --config ./package.json --output release/linux/${DIST_FILE_NAME} --targets node16-linux-x64 --compress GZip
+          mkdir build
+          mkdir build/linux
+          mkdir build/macos
+          mkdir build/win
+          ncc build -o build/lib -e enigma.js ./index.js
+          pkg --config ./package.json --output build/linux/${DIST_FILE_NAME} -t node16-linux-x64 ./build/lib/index.js --compress GZip
+          pkg --config ./package.json --output build/macos/${DIST_FILE_NAME} -t node16-macos-x64 ./build/lib/index.js --compress GZip
+          pkg --config ./package.json --output build/win/${DIST_FILE_NAME}.exe -t node16-win-x64 ./build/lib/index.js --compress GZip
 
       - name: Debug
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         run: |
+          pwd
           ls -la
           ls -la release
+          ls -la release/linux
           ls -la release/macos
           ls -la release/win
-          ls -la release/linux
+          mkdir ghaction-virustotal
+
+      - name: VirusTotal Scan
+        if: ${{ steps.release.outputs.release_created }}
+        uses: crazy-max/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
+          request_rate: 4
+          files: |
+            ./build/macos/*
+            ./build/win/*
+            ./build/linux/*
+
+      - name: Debug
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          ls -la ghaction-virustotal
 
       - name: Upload macOS build artifacts
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/upload-artifact@v3
         with:
           name: binaries-macos
-          path: release/macos/*
+          path: build/macos/*
 
       - name: Upload Linux build artifacts
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/upload-artifact@v3
         with:
           name: binaries-linux
-          path: release/linux/*
+          path: build/linux/*
 
       - name: Upload Windows build artifacts
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/upload-artifact@v3
         with:
           name: binaries-win
-          path: release/win/*
+          path: build/win/*
 
   release-macos:
     needs: release-please
@@ -122,7 +153,7 @@ jobs:
       - sp53
     # timeout-minutes: 15
 
-    if: ${{ needs.release-please.outputs.releases_created }} 
+    if: ${{ needs.release-please.outputs.release_created }} 
     env:
       DIST_FILE_NAME: butler-cw
     steps:
@@ -207,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     # timeout-minutes: 15
 
-    if: ${{ needs.release-please.outputs.releases_created }} 
+    if: ${{ needs.release-please.outputs.release_created }} 
     env:
       DIST_FILE_NAME: butler-cw
     steps:
@@ -265,7 +296,7 @@ jobs:
       - windows
       - sp53
     # timeout-minutes: 15
-    if: ${{ needs.release-please.outputs.releases_created }} 
+    if: ${{ needs.release-please.outputs.release_created }} 
     env:
       DIST_FILE_NAME: butler-cw
     steps:
@@ -287,6 +318,22 @@ jobs:
         with:
           name: binaries-win
           path: release-win/
+
+      - name: Sign the executable
+        env:
+          CODESIGN_PWD: ${{ secrets.WIN_CODESIGN_PWD}}
+          CODESIGN_INTERMEDIATE_BASE64: ${{ secrets.WIN_CODESIGN_INTERMEDIATE_BASE64 }}
+          CODESIGN_BASE64: ${{ secrets.WIN_CODESIGN_BASE64}}
+        run: |
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate\certificate.txt -Value $env:CODESIGN_BASE64
+          certutil -decode certificate\certificate.txt certificate\certificate.pfx
+          Set-Content -Path certificate\intermediate.txt -Value $env:CODESIGN_INTERMEDIATE_BASE64
+          certutil -decode certificate\intermediate.txt certificate\intermediate.crt
+
+          & 'C:\Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe' sign /fd SHA256 /p $env:CODESIGN_PWD /ac certificate\intermediate.crt /f certificate\certificate.pfx /tr "http://timestamp.sectigo.com/rfc3161" /td sha256 release-win/butler-cw.exe
+          
+          Remove-Item -Recurse -Force certificate
 
       - name: Install dependencies and zip into release asset
         run: |

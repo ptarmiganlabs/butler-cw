@@ -21,6 +21,33 @@
 * **deps:** Update Fastify and Docker image builder dependencies ([440da0a](https://github.com/ptarmiganlabs/butler-cw/commit/440da0a3dfb6517fd64c065b589a844a5b08cc48))
 * **deps:** update node.js to v19 ([0ffd553](https://github.com/ptarmiganlabs/butler-cw/commit/0ffd5530350c43bea00059ff1384712a3c711797))
 * **deps:** Use latest Axios library to stay safe and secure ([3ddd25c](https://github.com/ptarmiganlabs/butler-cw/commit/3ddd25c4cad0d814245031e93f850bffcefde68d)), closes [#208](https://github.com/ptarmiganlabs/butler-cw/issues/208)
+* **master:** release butler-cw 4.2.0 ([684aa68](https://github.com/ptarmiganlabs/butler-cw/commit/684aa68f72beef6bba2e779eff18c0b9bcee1a9d))
+* **master:** release butler-cw 4.2.0 ([3d29f46](https://github.com/ptarmiganlabs/butler-cw/commit/3d29f465fb8fb3d04bbf0a278eb21653ab5da916))
+* **master:** release butler-cw 4.2.0 ([283a365](https://github.com/ptarmiganlabs/butler-cw/commit/283a365abd5573beede3312eeaec5ba94f5ae1b1))
+* **master:** release butler-cw 4.2.0 ([733ed63](https://github.com/ptarmiganlabs/butler-cw/commit/733ed63f1c4e9f46024e0b6227adb63ffb71ad3d))
+* Update dependencies to stay safe and secure ([ecb9b3c](https://github.com/ptarmiganlabs/butler-cw/commit/ecb9b3c1aea0870e7d0f72abb1a9364eca2e3487))
+
+## [4.2.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.2.0...butler-cw-v4.2.0) (2023-04-12)
+
+
+### Features
+
+* Add command line parameters for specifying config files ([ecb9b3c](https://github.com/ptarmiganlabs/butler-cw/commit/ecb9b3c1aea0870e7d0f72abb1a9364eca2e3487))
+* Add virus/malware scanning as part of build process for stand-alone binaries ([bc13f07](https://github.com/ptarmiganlabs/butler-cw/commit/bc13f07eb67311962c6c8bf42b5eaaf47726ee53))
+* Sign Windows binary during build ([bc13f07](https://github.com/ptarmiganlabs/butler-cw/commit/bc13f07eb67311962c6c8bf42b5eaaf47726ee53)), closes [#187](https://github.com/ptarmiganlabs/butler-cw/issues/187) [#185](https://github.com/ptarmiganlabs/butler-cw/issues/185)
+
+
+### Bug Fixes
+
+* Refactor Docker healthcheck to avoid soon-to-be-deprecated features currently being used. ([8b4444a](https://github.com/ptarmiganlabs/butler-cw/commit/8b4444a70abce87d38d5fdca4a684f2efd8479db)), closes [#205](https://github.com/ptarmiganlabs/butler-cw/issues/205)
+
+
+### Miscellaneous
+
+* **deps:** Update dependencies to stay safe and secure ([74fc5cf](https://github.com/ptarmiganlabs/butler-cw/commit/74fc5cf76854629488b6893f4359f8a16acc5a45))
+* **deps:** Update Fastify and Docker image builder dependencies ([440da0a](https://github.com/ptarmiganlabs/butler-cw/commit/440da0a3dfb6517fd64c065b589a844a5b08cc48))
+* **deps:** update node.js to v19 ([0ffd553](https://github.com/ptarmiganlabs/butler-cw/commit/0ffd5530350c43bea00059ff1384712a3c711797))
+* **deps:** Use latest Axios library to stay safe and secure ([3ddd25c](https://github.com/ptarmiganlabs/butler-cw/commit/3ddd25c4cad0d814245031e93f850bffcefde68d)), closes [#208](https://github.com/ptarmiganlabs/butler-cw/issues/208)
 * **master:** release butler-cw 4.2.0 ([3d29f46](https://github.com/ptarmiganlabs/butler-cw/commit/3d29f465fb8fb3d04bbf0a278eb21653ab5da916))
 * **master:** release butler-cw 4.2.0 ([283a365](https://github.com/ptarmiganlabs/butler-cw/commit/283a365abd5573beede3312eeaec5ba94f5ae1b1))
 * **master:** release butler-cw 4.2.0 ([733ed63](https://github.com/ptarmiganlabs/butler-cw/commit/733ed63f1c4e9f46024e0b6227adb63ffb71ad3d))

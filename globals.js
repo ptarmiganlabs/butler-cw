@@ -26,18 +26,13 @@ program
     .description(
         'Butler CW makes sure that the most important apps are always loaded in your Qlik Sense Enterprise on Windows environment.\nCW = Cache Warming, i.e. the  process of proactively forcing Sense apps to be loaded into RAM memory.'
     )
-    .option('-c, --config-file <file>', 'Path to config file')
+    .option('-c, --config-file <file>', 'Path to config file', 'production.yaml')
     .addOption(
-        new Option('-l, --log-level <level>', 'log level').choices([
-            'error',
-            'warn',
-            'info',
-            'verbose',
-            'debug',
-            'silly',
-        ])
+        new Option('-l, --log-level <level>', 'log level')
+            .choices(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
+            .default('info')
     )
-    .option('-c, --app-config-file <file>', 'Path to config file with cache warming definitions');
+    .option('-a, --app-config-file <file>', 'Path to config file with cache warming definitions');
 
 // Parse command line params
 program.parse(process.argv);

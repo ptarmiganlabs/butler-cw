@@ -1,9 +1,13 @@
 # A cache warming tool for Qlik Sense
 
-[![Build Docker image](https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml/badge.svg)](https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/285300f789099a204af0/maintainability)](https://codeclimate.com/github/mountaindude/butler-cw/maintainability)
-
 ![Butler CW](img/butler_cw.png)
+
+<p align="left">
+<a href="https://github.com/ptarmiganlabs/butler-cw"><img src="https://img.shields.io/badge/Source---" alt="Source"></a>
+<a href="https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml"><img src="https://github.com/ptarmiganlabs/butler-cw/actions/workflows/docker-image-build.yml/badge.svg" alt="Continuous Integration"></a>
+<a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." /></a>
+
+</p>
 
 CW = Cache Warming, i.e. the process of proactively forcing Sense apps to be loaded into RAM, so they are readily available when users open them. Butler CW does this for Qlik Sense Enterprise on Windows (QSEoW).
 
@@ -16,40 +20,72 @@ The upside of shared persistence is that there is a single version of each app -
 
 The downside is that when a user opens a large Sense app, it takes significant time to load the app from the file server into Qlik's associative engine (a.k.a. the QIX engine) of the server that the user is connected to.
 
-True, the load time will depend on things like how fast disks are used on the file server, network speed etc - but even with best possible disks and servers that for example Amazon EC2 or Google Cloud Platform offers, large apps might take several minutes to load into the engine. This means the user opening the app in question would have to wait that time before starting to use the app. Not a good user experience.
+True, the load time will depend on things like how fast disks are used on the file server, network speed etc - but even with best possible disks and servers that Amazon, Google or Microsoft offer in their cloud platforms, large apps might take several minutes to load into the engine. This means the user opening the app in question would have to wait that time before starting to use the app. Not a good user experience.
 
 ## Solution
 
-Butler CW consists of four main parts:
+Butler CW consists of three main parts:
 
-* Node.js app that does the actual cache warming.
-* Config file (YAML) used by the Node.js app to know where to find server certificates etc.
+* Standalone binaries for Windows, Linux and macOS. All binaries are scanned for virus and malware. The Windows and macOS binaries are signed using industry standard methods. There is also a Docker image.
+* Config file (YAML format) used by the Butler CW binary.
 * A separate config file (YAML) for specifying with what frequency what apps should be loaded into which servers.
-* Docker image that wrap the previous three parts into a single image, which can be executed in any Docker environment. Functionally there is no difference in using native Node.js or Docker - just that the latter is usually a lot more convenient.
 
 ## Features
 
 * Control when and on what Sense server specific apps should be loaded/cache warmed.
-* Very flexible, human readable cache warming schedule definition for each app. Choose between using CET or local time zones.
+* Very flexible, human readable cache warming schedule definition for each app. Choose between using UTC or other local time zones.
 * Control per app if all sheets in the app should be opened. If enabled, this will effectively pre-calculate all charts in all sheets, for the default selection state in the app. This can dramatically shorten load times when an app is first accessed by end users.
 * Apps can be configured to have an initial cache warming run when Butler CW is first started.
 * Heartbeats sent to infrastructure monitoring tools. Useful if you want to monitor and ensure Butler CW is alive and well.
 * Uptime metrics (how long Butler CW has been running, how much memory it's using etc) written to log files.
-* Send data about all cache warming runs, for all apps, to MQTT for later use by subscribers to the MQTT topics used.
-* Store the app schedule file in GitHub rather than on disk.
+* Send data about all cache warming runs, for all apps, to MQTT for later use by subscribers of the MQTT topics.
+* Store the app schedule file in GitHub or in a file on disk.
 * Logs written to disk and console, with configurable log levels. Choose between using CET or local time zones in log files.
 * ... and more. The main config file is well documented and serves as the ultimate list of what's available in terms of features.
+
+## Command line options
+
+Butler CW has a few settings that can be configured via the command line:
+
+```powershell
+PS C:\code\butler-cw> .\butler-cw.exe --help
+Usage: butler-cw [options]
+
+Butler CW makes sure that the most important apps are always loaded in your Qlik Sense Enterprise on Windows environment.
+CW = Cache Warming, i.e. the  process of proactively forcing Sense apps to be loaded into RAM memory.
+
+Options:
+  -V, --version                 output the version number
+  -c, --config-file <file>      Path to config file (default: "production.yaml")
+  -l, --log-level <level>       log level (choices: "error", "warn", "info", "verbose", "debug", "silly", default: "info")
+  -a, --app-config-file <file>  Path to config file with cache warming definitions
+  -h, --help                    display help for command
+PS C:\code\butler-cw>
+```
 
 ## Configuration files
 
 There are two config files:
 
-### apps.yaml
+### Main config file
 
-This file is used to specify what apps should be pre-loaded into which servers. Most likely there will be several people (Sense developers and admins) that need to edit this file.  
-For that reason this file can be stored either on local disk, or as a better solution, on GitHub or some other revision control system.
+This YAML file contains general config info that Butler CW needs.
 
-If stored on GitHub (or other similar system), Butler CW will read the config file from GitHub, and you will also get all the traceability and peer review capabilities offerd by GitHub (or similar system).
+Part of the information is sensitive, for example the location of the Sense server certificates used when connecting to the Sense servers, as well as other parameters used to run the actual cache warming service. This file is stored on local disk.
+
+The default name and location for this file is `production.yaml` in the same directory where the Butler CW binary resides.  
+If the config file is located and/or names something else the  `--config-file` command line option can be used to specify which config file to use.
+
+### Cache warming definitions file
+
+This YAML file contains data about which apps should be cache warmed, on what servers and how often.
+
+The config file's location is either specified using the `--app-config-file` command line option or in the `appConfig.diskConfigFile` setting in the main config file.
+
+Most likely there will be several people (Sense developers and admins) that need to edit this file.  
+For that reason this file can be stored either on local disk or on GitHub or some other GitHub-compatible revision control system.
+
+If stored on GitHub (or other similar system), Butler CW will read the config file from there and you will get all the traceability and peer review capabilities offerd by GitHub.
 
 The workflow looks like this:
 
@@ -58,10 +94,6 @@ The workflow looks like this:
 3. When the changes are accepted in the upstream/main Git repository, Butler CW will at next restart use the new config file.
 
 There are instructions in [the template file](https://github.com/ptarmiganlabs/butler-cw/blob/master/config/apps_config.yaml) included in the GitHub repo that explains how this file works.
-
-### production.yaml
-
-This file contains sensitive information about where to find the Sense server certificates used when connecting to the Sense servers, as well as other parameters used to run the actual cache warming service. This file is stored on local disk.
 
 ## MQTT support
 
@@ -84,43 +116,96 @@ mqttConfig:
 
 ## Installation and setup
 
-### Running as a native Node.js app
+### Running as a stand-alone binary
 
-Basically the same as for any app in the Butler family:
+Basically the same as for any app in the [Butler family](https://github.com/ptarmiganlabs):
 
-1. Make sure you have a recent version of [Node.js](https://nodejs.org) installed. The latest LTS version is a good choice.
-2. Grab the latest release from the [release page](https://github.com/ptarmiganlabs/butler-cw/releases). Extract it to a suitable place on your Windows/Linux/Mac computer. A place like `d:\tools\butler-cw` could make sense on a Windows Server with a system `c:` drive and a `d:` for non-system applications.
-3. From within the directory where you placed the Butler CW files, run (this will download and install all dependencies that Butler CW uses)
+1. Grab the latest release from the [release page](https://github.com/ptarmiganlabs/butler-cw/releases).  
+   Extract it to a suitable place on your Windows/Linux/Mac computer. A place like `d:\tools\butler-cw` could make sense on a Windows Server with a system `c:` drive and a `d:` for non-system applications.
+2. Copy the template config files ([here](https://github.com/ptarmiganlabs/butler-cw/blob/master/config/default_config.yaml) and [here](https://github.com/ptarmiganlabs/butler-cw/blob/master/config/apps_config.yaml)) to desired location, for example a `config` subdirectory.  
+   Rename them as you see fit, for example `production.yaml` and `apps.yaml`.
+3. Edit `./config/production.yaml` as needed, using paths etc specific to your local system.
+4. Edit `./config/apps.yaml`, specifying when Sense apps should be loaded into servers.  
+   The frequency field in this config file is quite flexible, you can use any format listed [here](https://bunkat.github.io/laterparsers.htm).
 
-	```
-	npm i
-	```
-    
-4. Once the various dependencies have downloaded, copy the `./config/default_config.yaml` file to `./config/production.yaml`
-5. Edit `./config/production.yaml` as needed, using paths etc for your local system.
-6. Edit `./config/apps_config.yaml`, specifying when Sense apps should be loaded into servers. The frequency field in this config file is quite flexible, you can use any format listed [here](https://bunkat.github.io/laterparsers.htm).  
-This file can be named anything (e.g. abc.yaml), as long as it's name is also specified in the production.yaml file.
+Note:
+>  The `appStepThroughSheets` field in `./config/apps.yaml` controls whether Butler CW should iterate through all sheets and chart objects in the app.  
+>  If enabled, and there are lots of sheets and charts, **a lot** of RAM might be used when loading the app into Sense's engine.  
+>  
+> The user experience will on the other hand be great - sheets and the charts on them will load instantly - even those charts that previosuly took long time to render due to complex calculations and/or large data volumes.  
+> 
+> It is impossible to give firm guidance on what levels of caching and stepping through sheet that is suitable - you have to start on a low level and work your way up until you find a solution that works in your Qlik Sense environment.
 
-The `production.yaml` file can also be named anything, as long as it matches the value of the `NODE_ENV` environment variable.  
-For example, if the config file is called `production.yaml`, the `NODE_ENV` environment variable should be set to 'production':
+Start Butler CW by running `.\butler-cw.exe --config-file .\config\production.yaml --app-config-file .\config\apps.yaml`.  
+Here we are using PowerShell on Windows, specifying the location of the config files using the `--config-file` and `--app-config-file` command line options.
 
-Windows: `set NODE_ENV=production`  
-Linux: `export NODE_ENV=production`
 
-The "appStepThroughSheets" field in `./config/apps.yaml` controls whether Butler CW should iterate through all sheets and chart objects in the app. If enabled, and there are lots of sheets and charts, **a lot** of RAM might be used when loading the app into Sense's engine. The user experience will on the other hand be great - sheets and the charts on them will load instantly - even those charts that previosuly took long time to render due to complex calculations and/or large data volumes. It is impossible to give firm guidance on what levels of caching and stepping through sheet that is suitable - you have to start on a low level and work your way up, until you find a solution that works in your Qlik Sense environment.
+```powershell
+PS C:\code\butler-cw> .\butler-cw.exe --config-file .\config\production.yaml --app-config-file .\config\apps.yaml
+Config file option value: C:/code/butler-cw/config/production.yaml
+Config file, full path & file: C:/code/butler-cw/config/production.yaml
+Config file path: C:/code/butler-cw/config
+Config file name: production
+Config file extension: .yaml
+App config file option value: C:/code/butler-cw/config/apps.yaml
+App config file, full path & file: C:/code/butler-cw/config/apps.yaml
+App config file path: C:/code/butler-cw/config
+App config file name: apps
+App config file extension: .yaml
+2023-04-13T12:17:34.060Z info: --------------------------------------
+2023-04-13T12:17:34.060Z info: Starting Butler CW.
+2023-04-13T12:17:34.060Z info: Log level is: info
+2023-04-13T12:17:34.076Z info: App version is: 4.2.0
+2023-04-13T12:17:34.076Z info: --------------------------------------
+2023-04-13T12:17:34.107Z info: MAIN: Started Docker healthcheck server on port 12398.
+2023-04-13T12:17:34.169Z info: -------------------------------------------------------------------------
+2023-04-13T12:17:34.169Z info: First runs for app e28f9c40-6138-42f4-81c3-1d61860baa27, "Parking tickets by city":
+2023-04-13T12:17:34.169Z info: 1: Thu, 13 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.169Z info: 2: Fri, 14 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.169Z info: 3: Sat, 15 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.169Z info: 4: Sun, 16 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.169Z info: 5: Mon, 17 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.169Z info: 6: Tue, 18 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.185Z info: 7: Wed, 19 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.185Z info: 8: Thu, 20 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.185Z info: 9: Fri, 21 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.185Z info: 10: Sat, 22 Apr 2023 17:00:00 GMT
+2023-04-13T12:17:34.185Z info: -------------------------------------------------------------------------
+2023-04-13T12:17:34.185Z info: First runs for app c840670c-7178-4a5e-8409-ba2da69127e2, "Meetup.com":
+2023-04-13T12:17:34.185Z info: 1: Thu, 13 Apr 2023 12:20:00 GMT
+2023-04-13T12:17:34.185Z info: 2: Thu, 13 Apr 2023 12:40:00 GMT
+2023-04-13T12:17:34.185Z info: 3: Thu, 13 Apr 2023 13:00:00 GMT
+2023-04-13T12:17:34.185Z info: 4: Thu, 13 Apr 2023 13:20:00 GMT
+2023-04-13T12:17:34.185Z info: 5: Thu, 13 Apr 2023 13:40:00 GMT
+2023-04-13T12:17:34.185Z info: 6: Thu, 13 Apr 2023 14:00:00 GMT
+2023-04-13T12:17:34.185Z info: 7: Thu, 13 Apr 2023 14:20:00 GMT
+2023-04-13T12:17:34.185Z info: 8: Thu, 13 Apr 2023 14:40:00 GMT
+2023-04-13T12:17:34.185Z info: 9: Thu, 13 Apr 2023 15:00:00 GMT
+2023-04-13T12:17:34.201Z info: 10: Thu, 13 Apr 2023 15:20:00 GMT
+2023-04-13T12:17:39.207Z info: Starting: initial warming of app e28f9c40-6138-42f4-81c3-1d61860baa27, "Parking tickets by city"
+2023-04-13T12:17:39.207Z info: Done: initial warming of app e28f9c40-6138-42f4-81c3-1d61860baa27, "Parking tickets by city"
+2023-04-13T12:17:39.207Z info: Starting: initial warming of app c840670c-7178-4a5e-8409-ba2da69127e2, "Meetup.com"
+2023-04-13T12:17:39.207Z info: Done: initial warming of app c840670c-7178-4a5e-8409-ba2da69127e2, "Meetup.com"
+2023-04-13T12:17:39.688Z info: App loaded: e28f9c40-6138-42f4-81c3-1d61860baa27
+2023-04-13T12:17:39.704Z info: App e28f9c40-6138-42f4-81c3-1d61860baa27: Cached 0 visualizations on 0 sheets.
+2023-04-13T12:17:39.704Z warn: Next cache warming for app e28f9c40-6138-42f4-81c3-1d61860baa27: Fri, 14 Apr 2023 17:00:00 GMT
+```
 
-Start the service by running "node index.js". Butler CW has been tested on both macOS, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Debian and Ubuntu.
+### Running as a Windows service
+
+Use the excellent [nssm](https://nssm.cc) tool to install Butler CW as a service.
+
+Instructions are available on the nssm site.
 
 ### Running in a Docker container
 
-This is the preferred way of running Butler CW:
+If you have access to a Docker or Kubernetes environment this is a good option for running Butler CW.
 
-* No need to install Node.js on your server(s). Less security, performance and maintenance concerns.
-* Make use of your existing Docker runtime environments, or use those offered by Amazon, Google, Microsoft etc.
-* Benefit from the extremely comprehensive tools ecosystem (monitoring, deployment etc) that is available for Docker.
+* Make use of your existing container infrastructure, or use those offered by Amazon, Google, Microsoft etc.
+* Benefit from the extremely comprehensive tools ecosystem (monitoring, deployment etc) that is available for Docker/Kubernetes.
 * Updating Butler CW to the latest version is as easy as stopping the container, then doing a "docker pull ptarmiganlabs/butler:latest", and finally starting the container again.
 
-Installing and getting started with Butler CW in Docker can look something like this when working on MacOS. Windows and Linux of course looks slightly different:
+Installing and getting started with Butler CW in Docker can look something like this when working on MacOS. Windows and Linux of course looks slightly different.
 
 Create a directory for Butler CW. Config files and logs will be stored here.
 
@@ -164,7 +249,8 @@ drwxr-xr-x  5 goran  staff   160 Sep 27 10:43 ..
 -rw-r--r--@ 1 goran  staff  1192 Sep 27 10:43 root.pem
 ```
 
-What does a real-world config file look like?
+What does a real-world config file look like?  
+Here's one for Docker (the only difference is how the certificate files are referenced.)
 
 ```bash
 proton:butler-cw-docker goran$ cat config/production.yaml
@@ -419,7 +505,7 @@ The projects [issue list](https://github.com/ptarmiganlabs/butler-cw/issues) is 
 GitHub repository: [https://github.com/ptarmiganlabs/butler-cw](https://github.com/ptarmiganlabs/butler-cw)  
 Docker image on Docker Hub: [https://hub.docker.com/u/ptarmiganlabs](https://hub.docker.com/u/ptarmiganlabs)
 
-More info about the Butler family of Qlik Sense utilities can be found at the [Ptarmigan Labs](https://ptarmiganlabs.com/) site, on [Medium](https://medium.com/@mountaindude), over at [Qlik Branch](http://branch.qlik.com/#!/user/56728f52d1e497241ae69a86) or in the [GitHub repositories](https://github.com/ptarmiganlabs).
+More info about the Butler family of Qlik Sense utilities can be found at the [Ptarmigan Labs](https://ptarmiganlabs.com/) site, in the [GitHub repositories](https://github.com/ptarmiganlabs) or in the [Butler SOS site](https://butler-sos.ptarmiganlabs.com/docs/about/butler-family/).
 
 ### Inspiration
 

@@ -61,7 +61,7 @@ mqttConfig:
     uri: mqtt://<MQTT server ip/FQDN>:<port>      ## Port is usually 1883
 
 # QIX version to use
-qixVersion: 12.170.2
+qixVersion: 12.612.0         # Qlik Associative Engine version to use. Works with Feb 2020 and others
 
 # Config on what apps should be cached
 appConfig:

@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.2.0...butler-cw-v4.3.0) (2023-06-19)
+
+
+### Miscellaneous
+
+* Test new macOS app signing ([37011be](https://github.com/ptarmiganlabs/butler-cw/commit/37011be2c7ee10c56fe6da53f10e3899761085cd))
+
 ## [4.2.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.2.0...butler-cw-v4.2.0) (2023-04-13)
 
 

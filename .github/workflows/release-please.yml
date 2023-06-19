@@ -258,11 +258,12 @@ jobs:
           # use in a headless CI environment
           
           security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain 
-          security default-keychain -s build.keychain
+          security default-keychain -d user -s build.keychain
           security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
           security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
       
+
           codesign --force -s "$MACOS_CERTIFICATE_NAME" -v ./${{ env.DIST_FILE_NAME }} --deep --strict --options=runtime --timestamp --entitlements ../release-config/butler-cw.entitlements
       # codesign --force -s "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION}}" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ./release-config/butler-cw.entitlements
       #     xcrun notarytool submit ./${{ env.DIST_FILE_NAME }}.zip --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} --wait

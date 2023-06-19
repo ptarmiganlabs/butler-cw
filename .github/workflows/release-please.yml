@@ -263,7 +263,7 @@ jobs:
           security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
       
-          codesign --force -s "$MACOS_CERTIFICATE_NAME" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ../release-config/butler-cw.entitlements
+          codesign --force -s "$MACOS_CERTIFICATE_NAME" -v ./${{ env.DIST_FILE_NAME }} --deep --strict --options=runtime --timestamp --entitlements ../release-config/butler-cw.entitlements
       # codesign --force -s "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION}}" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ./release-config/butler-cw.entitlements
       #     xcrun notarytool submit ./${{ env.DIST_FILE_NAME }}.zip --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} --wait
 
@@ -285,7 +285,7 @@ jobs:
           # notarization service
 
           echo "Creating temp notarization archive"
-          ditto -c -k --keepParent "./${DIST_FILE_NAME}" "./${DIST_FILE_NAME}.zip"
+          ditto -c -k --keepParent "./${DIST_FILE_NAME}" "./${DIST_FILE_NAME}-macos.zip"
 
           # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
           # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -293,7 +293,7 @@ jobs:
           # you're curious
 
           echo "Notarize app"
-          xcrun notarytool submit "./${DIST_FILE_NAME}.zip" --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit "./${DIST_FILE_NAME}-macos.zip" --keychain-profile "notarytool-profile" --wait
 
 
       # - name: Change name of zip file

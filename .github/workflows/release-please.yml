@@ -219,7 +219,7 @@ jobs:
       # - https://melatonin.dev/blog/how-to-code-sign-and-notarize-macos-audio-plugins-in-ci/
       # - https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
       - name: Import certificates
-        uses: apple-actions/import-codesign-certs@v1
+        uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_ID_APP_CERT_BASE64 }}
           p12-password: ${{ secrets.APPLE_DEV_ID_APP_PASSWORD }}

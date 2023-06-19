@@ -264,7 +264,6 @@ jobs:
           security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
       
-
           codesign --force -s "$MACOS_CERTIFICATE_NAME" -v ./${{ env.DIST_FILE_NAME }} --deep --strict --options=runtime --timestamp --entitlements ../release-config/butler-cw.entitlements
       # codesign --force -s "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION}}" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ./release-config/butler-cw.entitlements
       #     xcrun notarytool submit ./${{ env.DIST_FILE_NAME }}.zip --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} --wait
@@ -287,7 +286,7 @@ jobs:
           # notarization service
 
           echo "Creating temp notarization archive"
-          ditto -c -k --keepParent "./${DIST_FILE_NAME}" "./${DIST_FILE_NAME}-macos.zip"
+          ditto -c -k --keepParent "./${DIST_FILE_NAME}" "./${DIST_FILE_NAME}-${{ needs.release-please.outputs.release_tag_name }}-macos.zip"
 
           # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
           # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -295,15 +294,15 @@ jobs:
           # you're curious
 
           echo "Notarize app"
-          xcrun notarytool submit "./${DIST_FILE_NAME}-macos.zip" --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit "./${DIST_FILE_NAME}-${{ needs.release-please.outputs.release_tag_name }}-macos.zip" --keychain-profile "notarytool-profile" --wait
 
 
-      - name: Change name of zip file
-        run: |
-          pwd
-          ls -la
-          ls -la ./${{ env.DIST_DIR }}
-          mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+      # - name: Change name of zip file
+      #   run: |
+      #     pwd
+      #     ls -la
+      #     ls -la ./${{ env.DIST_DIR }}
+      #     mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
 
       - name: Upload to existing release
         uses: ncipollo/release-action@v1
@@ -315,12 +314,16 @@ jobs:
           # artifactContentType: application/zip
           draft: true
           tag: ${{ needs.release-please.outputs.release_tag_name }}
-          artifacts: ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+          artifacts: ./${DIST_FILE_NAME}-${{ needs.release-please.outputs.release_tag_name }}-macos.zip
           token: ${{ github.token }}
 
       - name: Tidy up before existing
+        continue-on-error: true
         run: |
           rm -r ${{ env.DIST_DIR }}
+
+          # Remove build keychains if it exists. 
+          security delete-keychain build.keychain || true
 
   release-linux:
     needs: release-please

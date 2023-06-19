@@ -215,20 +215,23 @@ jobs:
       #     ls -la
       #     gon ./release-config/gon.json
 
+      # Inspiration from 
+      # - https://melatonin.dev/blog/how-to-code-sign-and-notarize-macos-audio-plugins-in-ci/
+      # - https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
       - name: Import certificates
         uses: apple-actions/import-codesign-certs@v1
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_ID_APP_CERT_BASE64 }}
           p12-password: ${{ secrets.APPLE_DEV_ID_APP_PASSWORD }}
 
-      # - name: Sign and notarize the macOS binary
-      #   # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow#3087720
-      #   # Not possible to staple ticket to the created binary: "Although tickets are created for standalone binaries, it’s not currently possible to staple tickets to them."
-      #   # This means that Internet connection is required first time a user runs the binary. Gatekeeper will then cache the ticket and allow the binary to run offline in the future.
-      #   working-directory: ${{ env.DIST_DIR }}
-      #   run: |
-      #     pwd
-      #     ls -la
+      - name: Sign and notarize the macOS binary
+        # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow#3087720
+        # Not possible to staple ticket to the created binary: "Although tickets are created for standalone binaries, it’s not currently possible to staple tickets to them."
+        # This means that Internet connection is required first time a user runs the binary. Gatekeeper will then cache the ticket and allow the binary to run offline in the future.
+        working-directory: ${{ env.DIST_DIR }}
+        run: |
+          pwd
+          ls -la
       #     codesign --force -s "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION}}" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ./release-config/butler-cw.entitlements
       #     xcrun notarytool submit ./${{ env.DIST_FILE_NAME }}.zip --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} --wait
           

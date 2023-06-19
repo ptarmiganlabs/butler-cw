@@ -7,6 +7,17 @@
 
 * **deps:** Update dependencies ([956e4c6](https://github.com/ptarmiganlabs/butler-cw/commit/956e4c6ed4cabb49549684f862ced8e766394d67))
 * Make macOS build pipeline use Apple's latest tools ([bb571d7](https://github.com/ptarmiganlabs/butler-cw/commit/bb571d773d948d44307997a38a6fb9e870071df3))
+* **master:** release butler-cw 4.3.0 ([07ec3f0](https://github.com/ptarmiganlabs/butler-cw/commit/07ec3f08a89219176d8a19381f50f28403ec16cd))
+* **master:** release butler-cw 4.3.0 ([ede52e7](https://github.com/ptarmiganlabs/butler-cw/commit/ede52e7bb112d62134c4f95ede4d08742a5df0a6))
+* Test new macOS app signing ([37011be](https://github.com/ptarmiganlabs/butler-cw/commit/37011be2c7ee10c56fe6da53f10e3899761085cd))
+
+## [4.3.0](https://github.com/ptarmiganlabs/butler-cw/compare/butler-cw-v4.3.0...butler-cw-v4.3.0) (2023-06-19)
+
+
+### Miscellaneous
+
+* **deps:** Update dependencies ([956e4c6](https://github.com/ptarmiganlabs/butler-cw/commit/956e4c6ed4cabb49549684f862ced8e766394d67))
+* Make macOS build pipeline use Apple's latest tools ([bb571d7](https://github.com/ptarmiganlabs/butler-cw/commit/bb571d773d948d44307997a38a6fb9e870071df3))
 * **master:** release butler-cw 4.3.0 ([ede52e7](https://github.com/ptarmiganlabs/butler-cw/commit/ede52e7bb112d62134c4f95ede4d08742a5df0a6))
 * Test new macOS app signing ([37011be](https://github.com/ptarmiganlabs/butler-cw/commit/37011be2c7ee10c56fe6da53f10e3899761085cd))
 

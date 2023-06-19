@@ -257,7 +257,8 @@ jobs:
           # with a UI dialog asking for the certificate password, which we can't
           # use in a headless CI environment
           
-          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain 
+          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+          security list-keychains -d user -s build.keychain
           security default-keychain -d user -s build.keychain
           security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
           security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
@@ -297,25 +298,25 @@ jobs:
           xcrun notarytool submit "./${DIST_FILE_NAME}-macos.zip" --keychain-profile "notarytool-profile" --wait
 
 
-      # - name: Change name of zip file
-      #   run: |
-      #     pwd
-      #     ls -la
-      #     ls -la ./${{ env.DIST_DIR }}
-      #     mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+      - name: Change name of zip file
+        run: |
+          pwd
+          ls -la
+          ls -la ./${{ env.DIST_DIR }}
+          mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
 
-      # - name: Upload to existing release
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     allowUpdates: true
-      #     omitBodyDuringUpdate: true
-      #     omitNameDuringUpdate: true
-      #     artifactContentType: raw
-      #     # artifactContentType: application/zip
-      #     draft: true
-      #     tag: ${{ needs.release-please.outputs.release_tag_name }}
-      #     artifacts: ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
-      #     token: ${{ github.token }}
+      - name: Upload to existing release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          artifactContentType: raw
+          # artifactContentType: application/zip
+          draft: true
+          tag: ${{ needs.release-please.outputs.release_tag_name }}
+          artifacts: ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+          token: ${{ github.token }}
 
       - name: Tidy up before existing
         run: |

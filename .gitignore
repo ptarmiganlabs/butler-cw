@@ -64,3 +64,4 @@ typings/
 # dotenv environment variables file
 .env
 
+build/lib/index.js

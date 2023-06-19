@@ -6,6 +6,11 @@ on:
     branches:
       - master
 
+# When pushing new commits, cancel any running builds on that branch
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -154,7 +159,9 @@ jobs:
 
     if: ${{ needs.release-please.outputs.release_created }} 
     env:
-      DIST_FILE_NAME: butler-cw
+      DIST_FILE_NAME: butler-cw     
+      GITHUB_TOKEN: ${{ secrets.PAT }}
+      DIST_DIR: release-macos
     steps:
       - name: Release tag and upload url from previous job
         run: |
@@ -173,11 +180,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: binaries-macos
-          path: release-macos/
+          path: ${{ env.DIST_DIR }}/
 
       - name: Make binary executable
         run: |
-          chmod +x release-macos/${DIST_FILE_NAME}
+          chmod +x ${{ env.DIST_DIR }}/${DIST_FILE_NAME}
 
       # Needed for GitHub hosted runner
       # For self-hosted runner the cert must either be installed manually, or the code below run once and then disabled.
@@ -197,40 +204,57 @@ jobs:
       - name: Debug
         run: |
           ls -la
-          ls -la ./release-macos
+          ls -la ./${{ env.DIST_DIR }}
 
-      - name: Sign the mac binaries with Gon
-        env:
-          AC_USERNAME: ${{ secrets.AC_USERNAME }}
-          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-        run: |
-          pwd
-          ls -la
-          gon ./release-config/gon.json
+      # - name: Sign the mac binaries with Gon
+      #   env:
+      #     AC_USERNAME: ${{ secrets.AC_USERNAME }}
+      #     AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+      #   run: |
+      #     pwd
+      #     ls -la
+      #     gon ./release-config/gon.json
 
-      - name: Change name of zip file
-        run: |
-          pwd
-          ls -la
-          ls -la ./release-macos
-          mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
-
-      - name: Upload to existing release
-        uses: ncipollo/release-action@v1
+      - name: Import certificates
+        uses: apple-actions/import-codesign-certs@v1
         with:
-          allowUpdates: true
-          omitBodyDuringUpdate: true
-          omitNameDuringUpdate: true
-          artifactContentType: raw
-          # artifactContentType: application/zip
-          draft: true
-          tag: ${{ needs.release-please.outputs.release_tag_name }}
-          artifacts: ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
-          token: ${{ github.token }}
+          p12-file-base64: ${{ secrets.APPLE_DEV_ID_APP_CERT_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DEV_ID_APP_PASSWORD }}
+
+      # - name: Sign and notarize the macOS binary
+      #   # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow#3087720
+      #   # Not possible to staple ticket to the created binary: "Although tickets are created for standalone binaries, it’s not currently possible to staple tickets to them."
+      #   # This means that Internet connection is required first time a user runs the binary. Gatekeeper will then cache the ticket and allow the binary to run offline in the future.
+      #   working-directory: ${{ env.DIST_DIR }}
+      #   run: |
+      #     pwd
+      #     ls -la
+      #     codesign --force -s "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION}}" -v ./${{ env.DIST_FILE_NAME }}.zip --deep --strict --options=runtime --timestamp --entitlements ./release-config/butler-cw.entitlements
+      #     xcrun notarytool submit ./${{ env.DIST_FILE_NAME }}.zip --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} --wait
+          
+      # - name: Change name of zip file
+      #   run: |
+      #     pwd
+      #     ls -la
+      #     ls -la ./${{ env.DIST_DIR }}
+      #     mv ./${{ env.DIST_FILE_NAME }}-macos.zip ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+
+      # - name: Upload to existing release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     allowUpdates: true
+      #     omitBodyDuringUpdate: true
+      #     omitNameDuringUpdate: true
+      #     artifactContentType: raw
+      #     # artifactContentType: application/zip
+      #     draft: true
+      #     tag: ${{ needs.release-please.outputs.release_tag_name }}
+      #     artifacts: ./${{ needs.release-please.outputs.release_tag_name }}-macos.zip
+      #     token: ${{ github.token }}
 
       - name: Tidy up before existing
         run: |
-          rm -r release-macos
+          rm -r ${{ env.DIST_DIR }}
 
   release-linux:
     needs: release-please

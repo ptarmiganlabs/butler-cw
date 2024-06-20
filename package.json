@@ -27,7 +27,7 @@
   "homepage": "https://github.com/ptarmiganlabs/butler-cw#readme",
   "dependencies": {
     "@breejs/later": "^4.1.0",
-    "@octokit/rest": "^19.0.13",
+    "@octokit/rest": "^21.0.0",
     "axios": "^1.4.0",
     "commander": "^11.0.0",
     "config": "^3.3.9",
